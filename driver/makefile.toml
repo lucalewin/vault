@@ -28,7 +28,7 @@ ignore_errors = true
 script = '''
 cd %TARGET_PATH%
 del driver.sys
-rename driver.dll driver.sys
+rename vault_driver.dll vault_driver.sys
 '''
 
 [tasks.sign]
@@ -38,5 +38,5 @@ call "%VC_BUILD_DIR%"
 
 if not exist DriverCertificate.cer ( makecert -r -pe -ss PrivateCertStore -n CN=DriverCertificate DriverCertificate.cer ) else ( echo Certificate already exists. )
 
-signtool sign /a /v /s PrivateCertStore /n DriverCertificate /fd certHash /t http://timestamp.digicert.com %TARGET_PATH%/driver.sys
+signtool sign /a /v /s PrivateCertStore /n DriverCertificate /fd certHash /t http://timestamp.digicert.com %TARGET_PATH%/vault_driver.sys
 '''
