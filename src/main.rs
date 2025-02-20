@@ -1,57 +1,38 @@
+use std::sync::Arc;
+
+use axum::{routing::post, Router};
+use routes::AppState;
+use tokio::net::TcpListener;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+
 mod cipher;
+mod error;
+mod routes;
+mod util;
 
-use cipher::{decrypt_data, derive_key, encrypt_data, DEFAULT_ITERATIONS, DEFAULT_KEY_LENGTH};
-use rand::RngCore;
+#[tokio::main]
+async fn main() {
+    // set up tracing debug level
+    tracing_subscriber::registry()
+        .with(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| "tower_http=debug,axum::rejection=trace,vault=trace".into()),
+        )
+        .with(tracing_subscriber::fmt::layer().without_time())
+        .init();
 
-fn random_array(len: usize) -> Vec<u8> {
-    let mut array = vec![0u8; len];
-    rand::rng().fill_bytes(&mut array);
-    array
-}
+    let state = AppState::new().await;
 
-fn signup(password: &str) -> (String, Vec<u8>, Vec<u8>, Vec<u8>) {
-    let recovery_phrase = random_array(32);
-    let salt = random_array(16);
+    let app = Router::new()
+        .route("/register", post(routes::register))
+        .route("/login", post(routes::login))
+        .route("/recovery", post(routes::recovery))
+        .route(
+            "/password",
+            post(routes::get_password).put(routes::add_password),
+        )
+        .with_state(Arc::new(state));
 
-    // derive the master key from the password
-    let master_key = derive_key(password.as_bytes(), &salt, DEFAULT_ITERATIONS, DEFAULT_KEY_LENGTH);
-    // derive the recovery key from the recovery phrase
-    let recovery_key = derive_key(&recovery_phrase, &salt, DEFAULT_ITERATIONS, DEFAULT_KEY_LENGTH);
-
-    // encrypt the master key with the recovery key
-    let (recovery_code, recovery_nonce) = encrypt_data(&master_key, &recovery_key);
-
-    println!("recovery key: {}", hex::encode(&recovery_key));
-    
-    (hex::encode(recovery_phrase), recovery_code, recovery_nonce, salt)
-}
-
-fn use_recovery_code(recovery_phrase: &str, recovery_salt: &[u8], recovery_code: &[u8], recovery_nonce: &[u8]) -> Vec<u8> {
-    let recovery_phrase = hex::decode(recovery_phrase).unwrap();
-    let key = derive_key(&recovery_phrase, recovery_salt, DEFAULT_ITERATIONS, DEFAULT_KEY_LENGTH);
-    println!("recovery key: {}", hex::encode(&key));
-    
-    // dbg!(&recovery_code);
-    decrypt_data(recovery_code, recovery_nonce, &key)
-}
-
-fn main() {
-    let password = "super_secure_password";
-    let mut salt = [0u8; 16];
-    rand::rng().fill_bytes(&mut salt);
-
-    let recovery = signup(password);
-
-    let key = derive_key(password.as_bytes(), &salt, 100_000, 32);
-    println!("Derived key: {}", hex::encode(&key));
-    
-    let plaintext = b"Hello, World!";
-    let (ciphertext, nonce) = encrypt_data(plaintext, &key);
-    println!("{ciphertext:?}");
-    println!("{nonce:?}");
-    drop(key);
-    let key = use_recovery_code(&recovery.0, &recovery.3, &recovery.1, &recovery.2);
-    println!("Derived key: {}", hex::encode(&key));
-    let plain = decrypt_data(&ciphertext, &nonce, &key);
-    dbg!(String::from_utf8(plain).unwrap());
+    let listener = TcpListener::bind("0.0.0.0:8000").await.unwrap();
+    axum::serve(listener, app).await.unwrap();
 }
