@@ -10,221 +10,217 @@ use rand::RngCore;
 use serde::Deserialize;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 
-use crate::error::Result;
 use crate::{
     cipher::{decrypt_data, derive_key, encrypt_data},
-    error::Error,
+    error::{Error, Result},
+    App,
 };
 
-#[derive(Debug)]
-pub struct AppState {
-    pub db: PgPool,
-}
+// #[derive(Debug)]
+// pub struct AppState {
+//     pub db: PgPool,
+// }
 
-impl AppState {
-    pub async fn new() -> Self {
-        let pool = PgPoolOptions::new()
-            .max_connections(5)
-            .connect("postgres://postgres:abcd@localhost/vault")
-            .await
-            .expect("Failed to connect to database");
-        sqlx::migrate!()
-            .run(&pool)
-            .await
-            .expect("Failed to run migrations");
+// impl AppState {
+//     pub async fn new() -> Self {
+//         let url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
 
-        Self { db: pool }
-    }
-}
+//         let pool = PgPoolOptions::new()
+//             .max_connections(5)
+//             .connect(&url)
+//             .await
+//             .expect("Failed to connect to database");
+//         sqlx::migrate!()
+//             .run(&pool)
+//             .await
+//             .expect("Failed to run migrations");
 
-#[derive(Deserialize)]
-pub struct RegisterPayload {
-    username: String,
-    email: String,
-    password: String,
-}
+//         Self { db: pool }
+//     }
+// }
 
-#[derive(Deserialize)]
-pub struct LoginPayload {}
+// #[derive(Deserialize)]
+// pub struct RegisterPayload {
+//     username: String,
+//     email: String,
+//     password: String,
+// }
 
-#[derive(Deserialize)]
-pub struct RecoveryPayload {}
+// #[derive(Deserialize)]
+// pub struct LoginPayload {}
 
-pub async fn register(
-    State(app): State<Arc<AppState>>,
-    Json(payload): Json<RegisterPayload>,
-) -> String {
-    tracing::trace!("register new user");
+// #[derive(Deserialize)]
+// pub struct RecoveryPayload {}
 
-    // create the hash for the master and recovery keys
-    let mut master_salt = [0u8; 16];
-    rand::rng().fill_bytes(&mut master_salt);
-    let mut recovery_salt = [0u8; 16];
-    rand::rng().fill_bytes(&mut recovery_salt);
+// pub async fn register(
+//     State(app): State<Arc<AppState>>,
+//     Json(payload): Json<RegisterPayload>,
+// ) -> String {
+//     tracing::trace!("register new user");
 
-    // create a random recovery phrase
-    let mut recovery_phrase = [0u8; 48];
-    rand::rng().fill_bytes(&mut recovery_phrase);
+//     // create the hash for the master and recovery keys
+//     let mut master_salt = [0u8; 16];
+//     rand::rng().fill_bytes(&mut master_salt);
+//     let mut recovery_salt = [0u8; 16];
+//     rand::rng().fill_bytes(&mut recovery_salt);
 
-    // derive the master and recovery keys
-    let master_key = derive_key(payload.password.as_bytes(), &master_salt, 32);
-    let recovery_key = derive_key(&recovery_phrase, &recovery_salt, 32);
+//     // create a random recovery phrase
+//     let mut recovery_phrase = [0u8; 48];
+//     rand::rng().fill_bytes(&mut recovery_phrase);
 
-    // encrypt the master key with the recovery key
-    let (encrypted_key, nonce) = encrypt_data(&master_key, &recovery_key);
-    let recovery_code = [nonce, encrypted_key].concat();
+//     // derive the master and recovery keys
+//     let master_key = derive_key(payload.password.as_bytes(), &master_salt, 32);
+//     let recovery_key = derive_key(&recovery_phrase, &recovery_salt, 32);
 
-    // hash the password (for login verification)
-    let password_salt = SaltString::generate(&mut OsRng);
-    let password_hash = Argon2::default()
-        .hash_password(payload.password.as_bytes(), &password_salt)
-        .unwrap();
+//     // encrypt the master key with the recovery key
+//     let (encrypted_key, nonce) = encrypt_data(&master_key, &recovery_key);
+//     let recovery_code = [nonce, encrypted_key].concat();
 
-    // hash the recovery phrase (for recovery verification)
-    let recovery_phrase_salt = SaltString::generate(&mut OsRng);
-    let recovery_phrase_hash = Argon2::default()
-        .hash_password(&recovery_phrase, &recovery_phrase_salt)
-        .unwrap();
+//     // hash the password (for login verification)
+//     let password_salt = SaltString::generate(&mut OsRng);
+//     let password_hash = Argon2::default()
+//         .hash_password(payload.password.as_bytes(), &password_salt)
+//         .unwrap();
 
-    // insert into database
-    sqlx::query!(
-        r#"
-        INSERT INTO users (username, email, password_hash, master_salt, recovery_salt, recovery_phrase_hash, recovery_code)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
-        "#,
-        payload.username,
-        payload.email,
-        password_hash.to_string(),
-        hex::encode(master_salt),
-        hex::encode(recovery_salt),
-        recovery_phrase_hash.to_string(),
-        hex::encode(recovery_code)
-    )
-    .execute(&app.db)
-    .await
-    .expect("Failed to insert user into database");
+//     // hash the recovery phrase (for recovery verification)
+//     let recovery_phrase_salt = SaltString::generate(&mut OsRng);
+//     let recovery_phrase_hash = Argon2::default()
+//         .hash_password(&recovery_phrase, &recovery_phrase_salt)
+//         .unwrap();
 
-    // send to user: hex-encoded recovery phrase
-    hex::encode(recovery_phrase)
-}
+//     // insert into database
+//     sqlx::query!(
+//         r#"
+//         INSERT INTO users (username, email, password_hash, master_salt, recovery_salt, recovery_phrase_hash, recovery_code)
+//         VALUES ($1, $2, $3, $4, $5, $6, $7)
+//         "#,
+//         payload.username,
+//         payload.email,
+//         password_hash.to_string(),
+//         &master_salt,
+//         &recovery_salt,
+//         recovery_phrase_hash.to_string(),
+//         recovery_code
+//     )
+//     .execute(&app.db)
+//     .await
+//     .expect("Failed to insert user into database");
 
-#[derive(Deserialize)]
-pub struct AddPasswordPayload {
-    email: String,
-    master_password: String,
-    url: String,
-    username: String,
-    password: String,
-}
+//     // send to user: hex-encoded recovery phrase
+//     hex::encode(recovery_phrase)
+// }
 
-pub async fn add_password(
-    State(app): State<Arc<AppState>>,
-    Json(payload): Json<AddPasswordPayload>,
-) -> Result<()> {
-    tracing::trace!("add new password");
-    // get current user from database and verify master_password
-    let user = sqlx::query!(
-        r#"
-        SELECT id, password_hash, master_salt FROM users WHERE email = $1
-        "#,
-        payload.email
-    )
-    .fetch_one(&app.db)
-    .await
-    .expect("Failed to fetch user from database");
+// HERE
 
-    let parsed_hash = PasswordHash::new(&user.password_hash).unwrap();
-    Argon2::default()
-        .verify_password(payload.master_password.as_bytes(), &parsed_hash)
-        // if the password is incorrect, return an error
-        .map_err(|_| Error::Generic("Invalid master password".to_string()))?;
+// #[derive(Deserialize)]
+// pub struct AddPasswordPayload {
+//     email: String,
+//     master_password: String,
+//     url: String,
+//     username: String,
+//     password: String,
+// }
 
-    let key = derive_key(
-        payload.master_password.as_bytes(),
-        &hex::decode(user.master_salt).unwrap(),
-        32,
-    );
-    let (ciphertext, nonce) = encrypt_data(payload.password.as_bytes(), &key);
-    let encrypted_password = [nonce, ciphertext].concat();
+// pub async fn add_password(
+//     State(app): State<App>,
+//     Json(payload): Json<AddPasswordPayload>,
+// ) -> Result<()> {
+//     tracing::trace!("add new password");
+//     // get current user from database and verify master_password
+//     let user = sqlx::query!(
+//         r#"
+//         SELECT id, password_hash, master_salt FROM users WHERE email = $1
+//         "#,
+//         payload.email
+//     )
+//     .fetch_one(&app.db)
+//     .await
+//     .expect("Failed to fetch user from database");
 
-    // insert into database
-    sqlx::query!(
-        r#"
-        INSERT INTO passwords (user_id, url, username, password)
-        VALUES ($1, $2, $3, $4)
-        "#,
-        user.id,
-        payload.url,
-        payload.username,
-        hex::encode(encrypted_password)
-    )
-    .execute(&app.db)
-    .await
-    .expect("Failed to insert password into database");
+//     let parsed_hash = PasswordHash::new(&user.password_hash).unwrap();
+//     Argon2::default()
+//         .verify_password(payload.master_password.as_bytes(), &parsed_hash)
+//         // if the password is incorrect, return an error
+//         .map_err(|_| Error::Generic("Invalid master password".to_string()))?;
 
-    Ok(())
-}
+//     let key = derive_key(payload.master_password.as_bytes(), &user.master_salt, 32);
+//     let (ciphertext, nonce) = encrypt_data(payload.password.as_bytes(), &key);
+//     let encrypted_password = [nonce, ciphertext].concat();
 
-#[derive(Deserialize)]
-pub struct GetPasswordPayload {
-    email: String,
-    master_password: String,
-    url: String,
-}
+//     // insert into database
+//     sqlx::query!(
+//         r#"
+//         INSERT INTO passwords (user_id, url, username, password)
+//         VALUES ($1, $2, $3, $4)
+//         "#,
+//         user.id,
+//         payload.url,
+//         payload.username,
+//         hex::encode(encrypted_password)
+//     )
+//     .execute(&app.db)
+//     .await
+//     .expect("Failed to insert password into database");
 
-pub async fn get_password(
-    State(app): State<Arc<AppState>>,
-    Json(payload): Json<GetPasswordPayload>,
-) -> Result<String> {
-    tracing::trace!("get password");
-    // get current user from database and verify master_password
-    let user = sqlx::query!(
-        r#"
-        SELECT id, password_hash, master_salt FROM users WHERE email = $1
-        "#,
-        payload.email
-    )
-    .fetch_one(&app.db)
-    .await
-    .expect("Failed to fetch user from database");
+//     Ok(())
+// }
 
-    let parsed_hash = PasswordHash::new(&user.password_hash).unwrap();
-    Argon2::default()
-        .verify_password(payload.master_password.as_bytes(), &parsed_hash)
-        // if the password is incorrect, return an error
-        .map_err(|_| Error::Generic("Invalid master password".to_string()))?;
+// #[derive(Deserialize)]
+// pub struct GetPasswordPayload {
+//     email: String,
+//     master_password: String,
+//     url: String,
+// }
 
-    // get the encrypted password from the database
-    let encrypted_password = sqlx::query!(
-        r#"
-        SELECT password FROM passwords WHERE user_id = $1 AND url = $2
-        "#,
-        user.id,
-        payload.url
-    )
-    .fetch_one(&app.db)
-    .await
-    .map_err(|_| Error::Generic("Password not found".to_string()))?
-    .password;
+// pub async fn get_password(
+//     State(app): State<App>,
+//     Json(payload): Json<GetPasswordPayload>,
+// ) -> Result<String> {
+//     tracing::trace!("get password");
+//     // get current user from database and verify master_password
+//     let user = sqlx::query!(
+//         r#"
+//         SELECT id, password_hash, master_salt FROM users WHERE email = $1
+//         "#,
+//         payload.email
+//     )
+//     .fetch_one(&app.db)
+//     .await
+//     .expect("Failed to fetch user from database");
 
-    let encoded = hex::decode(encrypted_password).unwrap();
+//     let parsed_hash = PasswordHash::new(&user.password_hash).unwrap();
+//     Argon2::default()
+//         .verify_password(payload.master_password.as_bytes(), &parsed_hash)
+//         // if the password is incorrect, return an error
+//         .map_err(|_| Error::Generic("Invalid master password".to_string()))?;
 
-    let nonce = &encoded[..12];
-    let ciphertext = &encoded[12..];
-    let key = derive_key(
-        payload.master_password.as_bytes(),
-        &hex::decode(user.master_salt).unwrap(),
-        32,
-    );
-    let plaintext = decrypt_data(ciphertext, nonce, &key);
+//     // get the encrypted password from the database
+//     let encrypted_password = sqlx::query!(
+//         r#"
+//         SELECT password FROM passwords WHERE user_id = $1 AND url = $2
+//         "#,
+//         user.id,
+//         payload.url
+//     )
+//     .fetch_one(&app.db)
+//     .await
+//     .map_err(|_| Error::Generic("Password not found".to_string()))?
+//     .password;
 
-    Ok(String::from_utf8(plaintext).unwrap())
-}
+//     let encoded = hex::decode(encrypted_password).unwrap();
 
-pub async fn login() {
-    todo!()
-}
+//     let nonce = &encoded[..12];
+//     let ciphertext = &encoded[12..];
+//     let key = derive_key(payload.master_password.as_bytes(), &user.master_salt, 32);
+//     let plaintext = decrypt_data(ciphertext, nonce, &key);
 
-pub async fn recovery() {
-    todo!()
-}
+//     Ok(String::from_utf8(plaintext).unwrap())
+// }
+
+// pub async fn login() {
+//     todo!()
+// }
+
+// pub async fn recovery() {
+//     todo!()
+// }

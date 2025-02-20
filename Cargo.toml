@@ -7,10 +7,12 @@ edition = "2021"
 argon2 = "0.5.3"
 axum = { version = "0.8.1", features = ["tracing"] }
 chacha20poly1305 = "0.10.1"
+dotenv = "0.15.0"
 hex = "0.4.3"
 pbkdf2 = "0.12.2"
 rand = "0.9.0"
 serde = { version = "1.0.217", features = ["derive"] }
+serde_json = "1.0.139"
 sha2 = "0.10.8"
 sqlx = { version = "0.8.3", features = ["postgres", "runtime-tokio"] }
 thiserror = "2.0.11"
