@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
-use axum::Router;
+use axum::{Router, routing::get_service};
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tokio::net::TcpListener;
 use tower_http::cors::CorsLayer;
-use tower_http::services::ServeDir;
 use tower_http::trace::TraceLayer;
+use tower_http::services::ServeDir;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod api;
@@ -53,11 +53,16 @@ async fn main() {
     let state = AppState::new().await;
 
     let app = Router::new()
-        .nest_service("/", ServeDir::new("static").append_index_html_on_directories(true))
         .nest("/api/v1", api::router())
         .with_state(Arc::new(state))
         .layer(CorsLayer::permissive())
-        .layer(TraceLayer::new_for_http());
+        .layer(TraceLayer::new_for_http())
+        .fallback(get_service(ServeDir::new("static")).handle_error(|error| async move {
+            (
+                axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Unhandled internal error: {}", error),
+            )
+        }));
 
     let listener = TcpListener::bind("0.0.0.0:8000").await.unwrap();
     axum::serve(listener, app).await.unwrap();

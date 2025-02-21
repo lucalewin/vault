@@ -1,7 +1,10 @@
-run: dioxus-build
+run: vue-build
     cargo run
 
-dioxus-build:
-    cd frontend && dx build --release && tailwindcss -i ./input.css -o ./assets/tailwind.css
-    mkdir static
-    # cp -r frontend/dist/* static/
+build-prod: vue-build
+    cargo build --release
+
+vue-build:
+    cd frontend && npm run build
+    mkdir -p static
+    cp -r frontend/dist/* static/

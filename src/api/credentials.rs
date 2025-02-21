@@ -138,7 +138,11 @@ pub async fn get_credential(Path(cred_id): Path<i32>, State(app): State<App>, Se
 
     Ok(serde_json::json!({
         "status": "success",
-        "credential": decrypted_password,
+        "credential": {
+            "service": credential.service,
+            "username": credential.username,
+            "password": decrypted_password,
+        }
     }).to_string())
 }
 
