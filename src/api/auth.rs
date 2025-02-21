@@ -1,6 +1,6 @@
 use argon2::{
     password_hash::{PasswordHasher, SaltString},
-    Argon2,
+    Argon2, PasswordHash, PasswordVerifier,
 };
 use axum::{extract::State, Json};
 use chacha20poly1305::aead::OsRng;
@@ -8,8 +8,7 @@ use rand::RngCore;
 use serde::Deserialize;
 
 use crate::{
-    cipher::{derive_key, encrypt_data},
-    App,
+    cipher::{derive_key, encrypt_data}, error::Error, session::generate_token, App
 };
 
 #[derive(Deserialize)]
@@ -72,4 +71,38 @@ pub async fn register(State(app): State<App>, Json(payload): Json<RegisterPayloa
 
     // send to user: hex-encoded recovery phrase
     hex::encode(recovery_phrase)
+}
+
+#[derive(Deserialize)]
+pub struct LoginPayload {
+    email: String,
+    password: String,
+}
+
+pub async fn login(State(app): State<App>, Json(payload): Json<LoginPayload>) -> Result<String, Error> {
+    tracing::trace!("login user");
+
+    // get the user from the database
+    let user = sqlx::query!(
+        r#"
+        SELECT * FROM users WHERE email = $1
+        "#,
+        payload.email
+    )
+    .fetch_one(&app.db)
+    .await
+    .expect("Failed to fetch user from database");
+
+    // verify the password
+    let parsed_hash = PasswordHash::new(&user.password_hash).unwrap();
+    Argon2::default()
+        .verify_password(payload.password.as_bytes(), &parsed_hash)
+        .map_err(|_| Error::Generic("Invalid master password".to_string()))?;
+
+    // create jwt token
+    let token = generate_token(user.id.to_string());
+    Ok(serde_json::json!({
+        "status": "success",
+        "token": token
+    }).to_string())
 }

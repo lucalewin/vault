@@ -6,9 +6,12 @@ edition = "2021"
 [dependencies]
 argon2 = "0.5.3"
 axum = { version = "0.8.1", features = ["tracing"] }
+axum-extra = { version = "0.10.0", features = ["typed-header"] }
 chacha20poly1305 = "0.10.1"
+chrono = "0.4.39"
 dotenv = "0.15.0"
 hex = "0.4.3"
+jsonwebtoken = "9.3.1"
 pbkdf2 = "0.12.2"
 rand = "0.9.0"
 serde = { version = "1.0.217", features = ["derive"] }
@@ -17,5 +20,6 @@ sha2 = "0.10.8"
 sqlx = { version = "0.8.3", features = ["postgres", "runtime-tokio"] }
 thiserror = "2.0.11"
 tokio = { version = "1.43.0", features = ["full"] }
+tower-http = { version = "0.6.2", features = ["cors", "trace", "serve-dir"] }
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }

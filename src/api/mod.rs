@@ -12,6 +12,7 @@ pub fn router() -> Router<App> {
     Router::new()
         // auth sub-routes
         .route("/auth/register", post(auth::register))
+        .route("/auth/login", post(auth::login))
         // credentials sub-routes
         .route(
             "/credentials",
@@ -19,7 +20,7 @@ pub fn router() -> Router<App> {
         )
         .route(
             "/credentials/{id}",
-            get(credentials::get_credential)
+            post(credentials::get_credential)
                 .put(credentials::update_credential)
                 .delete(credentials::delete_credential),
         )

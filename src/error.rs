@@ -1,4 +1,4 @@
-use axum::response::IntoResponse;
+use axum::{http::StatusCode, response::{IntoResponse, Response}, Json};
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -7,9 +7,12 @@ pub enum Error {
 }
 
 impl IntoResponse for Error {
-    fn into_response(self) -> axum::response::Response {
-        axum::response::Json(self.to_string()).into_response()
+    fn into_response(self) -> Response {
+        Json(serde_json::json!({
+            "status": "error",
+            "message": self.to_string()
+        })).into_response()
     }
 }
 
-pub type Result<T> = std::result::Result<T, Error>;
+// pub type Result<T> = std::result::Result<T, Error>;
