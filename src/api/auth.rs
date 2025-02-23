@@ -18,7 +18,7 @@ pub struct RegisterPayload {
     password: String,
 }
 
-pub async fn register(State(app): State<App>, Json(payload): Json<RegisterPayload>) -> String {
+pub async fn register(State(app): State<App>, Json(payload): Json<RegisterPayload>) -> Result<String, Error> {
     tracing::trace!("register new user");
 
     // create the hash for the master and recovery keys
@@ -70,7 +70,10 @@ pub async fn register(State(app): State<App>, Json(payload): Json<RegisterPayloa
     .expect("Failed to insert user into database");
 
     // send to user: hex-encoded recovery phrase
-    hex::encode(recovery_phrase)
+    Ok(Json(serde_json::json!({
+        "status": "success",
+        "recovery_phrase": hex::encode(recovery_phrase)
+    })).to_string())
 }
 
 #[derive(Deserialize)]

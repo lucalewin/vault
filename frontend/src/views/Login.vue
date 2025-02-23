@@ -11,6 +11,7 @@
     <button type="submit">Log in</button>
     <!-- <div v-if="loading" class="loader"></div> -->
     <LinearSpinner :loading="loading" />
+    <p v-if="error" style="color: red;">{{ error }}</p>
   </form>
 </template>
 
@@ -22,6 +23,7 @@ import LinearSpinner from '../components/LinearSpinner.vue';
 const email = ref('');
 const password = ref('');
 const loading = ref(false);
+const error = ref('');
 const router = useRouter();
 
 const handleSubmit = async () => {
@@ -43,12 +45,16 @@ const handleSubmit = async () => {
     }
 
     const data = await response.json();
-    const token = data.token;
-    localStorage.setItem('api_token', token);
-    router.push('/');
-  } catch (error) {
-    console.error('Login failed:', error);
-    // alert('Login failed. Please check your credentials and try again.');
+    if (data.status === 'error') {
+      error.value = data.message;
+    } else {
+      const token = data.token;
+      localStorage.setItem('api_token', token);
+      router.push('/');
+    }
+  } catch (err) {
+    console.error('Login failed:', err);
+    error.value = 'Login failed. Please check your credentials and try again.';
   } finally {
     loading.value = false;
   }

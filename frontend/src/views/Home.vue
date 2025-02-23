@@ -1,6 +1,7 @@
 <template>
   <div v-if="!isLoggedIn">
     <button @click="router.push('/login')">Login</button>
+    <button @click="router.push('/register')">Register</button>
   </div>
   <div v-else>
     <div class="services">
