@@ -3,12 +3,12 @@
     <nav>
       <!-- <button @click="router.push('/')">Home</button> -->
       <div>
-        <a href="/"><h1>Home</h1></a>
+        <a href="/"><h1>Password Manager</h1></a>
       </div>
-      <div>
+      <!-- <div>
         <button @click="router.push('/login')">Login</button>
         <button @click="router.push('/register')">Register</button>
-      </div>
+      </div> -->
     </nav>
   </header>
 </template>

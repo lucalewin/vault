@@ -21,7 +21,7 @@
   padding: 0;
 }
 
-button {
+.btn, button[type="submit"] {
   outline: none;
   border: none;
   background-color: darkorange;
@@ -29,12 +29,31 @@ button {
   line-height: 2.5em;
   font-size: 16px;
   padding: 4px 16px;
+
+  &:hover {
+    background-color: orange;
+  }
 }
 
 input {
-  border: 1px solid #000;
+  border: 1px solid #aaa;
+  /* outline: none; */
+  /* background-color: #dae6ff57; */
   border-radius: 8px;
   padding: 6px 8px;
   line-height: 1.5em;
   font-size: 16px;
+}
+
+i.pi {
+  color: #555;
+  padding: 6px;
+  border-radius: 100%;
+}
+
+span i.pi {
+  &:hover {
+    /* color: #000; */
+    background-color: #cccccc71;
+  }
 }

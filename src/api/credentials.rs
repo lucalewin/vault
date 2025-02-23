@@ -19,10 +19,11 @@ pub struct AddRequest {
 }
 
 pub async fn add_credential(State(app): State<App>, SessionUser(id): SessionUser, Json(payload): Json<AddRequest>) -> Result<String, Error> {
+    tracing::info!("Adding credential for user {}", id);
     // verify user by email and hash of master password
-    let master_salt = sqlx::query_scalar!(
+    let user = sqlx::query!(
         r#"
-        SELECT master_salt FROM users WHERE id = $1
+        SELECT password_hash, master_salt FROM users WHERE id = $1
         "#,
         id
     )
@@ -31,15 +32,17 @@ pub async fn add_credential(State(app): State<App>, SessionUser(id): SessionUser
     .expect("Failed to fetch user from database");
 
     // // verify master password hash
-    // let parsed_hash = PasswordHash::new(&user.password_hash).unwrap();
-    // Argon2::default()
-    //     .verify_password(payload.master_password.as_bytes(), &parsed_hash)
-    //     // if the password is incorrect, return an error
-    //     .map_err(|_| Error::Generic("Invalid master password".to_string()))?;
+    let parsed_hash = PasswordHash::new(&user.password_hash).unwrap();
+    Argon2::default()
+        .verify_password(payload.master_password.as_bytes(), &parsed_hash)
+        // if the password is incorrect, return an error
+        .map_err(|_| Error::Generic("Invalid master password".to_string()))?;
+
+    tracing::info!("Master password verified");
 
     // encrypt the password with the master key
     let encrypted_password = {
-        let key = derive_key(payload.master_password.as_bytes(), &master_salt, 32);
+        let key = derive_key(payload.master_password.as_bytes(), &user.master_salt, 32);
         let (ciphertext, nonce) = encrypt_data(payload.password.as_bytes(), &key);
         [nonce, ciphertext].concat()
     };

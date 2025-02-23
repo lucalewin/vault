@@ -2,23 +2,30 @@
   <form v-on:submit.prevent="handleSubmit" class="form">
     <div>
       <label for="email">Email</label>
-      <input type="email" id="email" v-model="email" required>
+      <input type="email" id="email" v-model="email" class="input" required>
     </div>
     <div>
       <label for="password">Password</label>
-      <input type="password" id="password" v-model="password" required>
+      <input type="password" id="password" v-model="password" class="input" required>
     </div>
     <button type="submit">Log in</button>
+    <!-- <div v-if="loading" class="loader"></div> -->
+    <LinearSpinner :loading="loading" />
   </form>
 </template>
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import LinearSpinner from '../components/LinearSpinner.vue';
 
 const email = ref('');
 const password = ref('');
+const loading = ref(false);
+const router = useRouter();
 
 const handleSubmit = async () => {
+  loading.value = true;
   try {
     const response = await fetch('/api/v1/auth/login', {
       method: 'POST',
@@ -38,10 +45,12 @@ const handleSubmit = async () => {
     const data = await response.json();
     const token = data.token;
     localStorage.setItem('api_token', token);
-    alert('Login successful!');
+    router.push('/');
   } catch (error) {
     console.error('Login failed:', error);
-    alert('Login failed. Please check your credentials and try again.');
+    // alert('Login failed. Please check your credentials and try again.');
+  } finally {
+    loading.value = false;
   }
 };
 </script>
@@ -51,7 +60,6 @@ form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  /* max-width: 300px; */
   margin: 8px;
   padding: 1rem;
   border: 1px solid #ccc;
@@ -63,14 +71,37 @@ form div {
   flex-direction: column;
 }
 
-/* button {
-  outline: none;
-  border: none;
-  background-color: darkorange;
-  border-radius: 8px;
-  line-height: 2.5em;
-  font-size: 16px;
-} */
+.loader {
+  width: 100%;
+  height: 4.8px;
+  display: inline-block;
+  position: relative;
+  background: rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+.loader::after {
+  content: '';
+  /* width: 192px; */
+  width: 392px;
+  height: 4.8px;
+  background: lightskyblue;
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  animation: animloader 1s linear infinite;
+}
+
+@keyframes animloader {
+  0% {
+    left: 0;
+    transform: translateX(-100%);
+  }
+  100% {
+    left: 100%;
+    transform: translateX(0%);
+  }
+}
 
 @media screen and (max-width: 440px) {
   form {

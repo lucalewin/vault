@@ -3,14 +3,14 @@ import Home from '../views/Home.vue';
 import Login from '../views/Login.vue';
 import Register from '../views/Register.vue';
 import New from '../views/New.vue';
-import Challenge from '../views/Challenge.vue';
+import View from '../views/View.vue';
 
 const routes = [
   { path: '/', component: Home },
   { path: '/login', component: Login },
   { path: '/register', component: Register },
   { path: '/new', component: New },
-  { path: '/challenge', component: Challenge },
+  { path: '/view', component: View },
 ];
 
 const router = createRouter({
