@@ -1,5 +1,12 @@
-use axum::{extract::FromRequestParts, http::{request::Parts, StatusCode}, RequestPartsExt};
-use axum_extra::{headers::{authorization::Bearer, Authorization}, TypedHeader};
+use axum::{
+    extract::FromRequestParts,
+    http::{request::Parts, StatusCode},
+    RequestPartsExt,
+};
+use axum_extra::{
+    headers::{authorization::Bearer, Authorization},
+    TypedHeader,
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -15,10 +22,17 @@ pub fn generate_token(sub: String) -> String {
         .checked_add_signed(chrono::Duration::minutes(10))
         .expect("valid timestamp")
         .timestamp();
-    let claims = Claims { sub, exp: exp as usize };
+    let claims = Claims {
+        sub,
+        exp: exp as usize,
+    };
     let header = jsonwebtoken::Header::default();
-    jsonwebtoken::encode(&header, &claims, &jsonwebtoken::EncodingKey::from_secret(b"secret"))
-        .expect("valid token")
+    jsonwebtoken::encode(
+        &header,
+        &claims,
+        &jsonwebtoken::EncodingKey::from_secret(b"secret"),
+    )
+    .expect("valid token")
 }
 
 pub fn verify_token(token: &str) -> Result<Claims, jsonwebtoken::errors::Error> {
@@ -27,7 +41,7 @@ pub fn verify_token(token: &str) -> Result<Claims, jsonwebtoken::errors::Error> 
         &jsonwebtoken::DecodingKey::from_secret(b"secret"),
         &jsonwebtoken::Validation::default(),
     )?;
-    Ok(token.claims)    
+    Ok(token.claims)
 }
 
 pub struct SessionUser(pub i32);
@@ -56,4 +70,3 @@ where
         ))
     }
 }
-

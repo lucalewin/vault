@@ -1,7 +1,7 @@
 <template>
   <div v-if="!isLoggedIn">
-    <button @click="router.push('/login')">Login</button>
-    <button @click="router.push('/register')">Register</button>
+    <button class="auth-button" @click="router.push('/login')">Login</button>
+    <button class="auth-button" @click="router.push('/register')">Register</button>
   </div>
   <div v-else>
     <div class="services">
@@ -122,5 +122,21 @@ a {
     background-color: #f4f4f4;
     cursor: pointer;
   }
+}
+
+.auth-button {
+  margin: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.auth-button:hover {
+  background-color: #0056b3;
 }
 </style>

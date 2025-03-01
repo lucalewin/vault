@@ -1,10 +1,16 @@
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use axum::{
-    extract::{Path, State}, Json
+    extract::{Path, State},
+    Json,
 };
 use serde::{Deserialize, Serialize};
 
-use crate::{cipher::{decrypt_data, derive_key, encrypt_data}, error::Error, session::SessionUser, App};
+use crate::{
+    cipher::{decrypt_data, derive_key, encrypt_data},
+    error::Error,
+    session::SessionUser,
+    App,
+};
 
 #[derive(Deserialize)]
 pub struct AddRequest {
@@ -18,7 +24,11 @@ pub struct AddRequest {
     pub password: String,
 }
 
-pub async fn add_credential(State(app): State<App>, SessionUser(id): SessionUser, Json(payload): Json<AddRequest>) -> Result<String, Error> {
+pub async fn add_credential(
+    State(app): State<App>,
+    SessionUser(id): SessionUser,
+    Json(payload): Json<AddRequest>,
+) -> Result<String, Error> {
     tracing::info!("Adding credential for user {}", id);
     // verify user by email and hash of master password
     let user = sqlx::query!(
@@ -65,7 +75,8 @@ pub async fn add_credential(State(app): State<App>, SessionUser(id): SessionUser
     Ok(serde_json::json!({
         "status": "success",
         "message": "Password added successfully",
-    }).to_string())
+    })
+    .to_string())
 }
 
 // #[derive(Deserialize)]
@@ -81,7 +92,10 @@ struct SmallEntry {
     username: String,
 }
 
-pub async fn get_all_credentials(State(app): State<App>, SessionUser(id): SessionUser) -> Result<String, Error> {
+pub async fn get_all_credentials(
+    State(app): State<App>,
+    SessionUser(id): SessionUser,
+) -> Result<String, Error> {
     // get all credentials for the user
     let credentials = sqlx::query_as!(
         SmallEntry,
@@ -95,16 +109,22 @@ pub async fn get_all_credentials(State(app): State<App>, SessionUser(id): Sessio
     Ok(serde_json::json!({
         "status": "success",
         "credentials": credentials,
-    }).to_string())
+    })
+    .to_string())
 }
 
 #[derive(Deserialize)]
 pub struct GetRequest {
     // pub email: String,
-    pub master_password: String
+    pub master_password: String,
 }
 
-pub async fn get_credential(Path(cred_id): Path<i32>, State(app): State<App>, SessionUser(user_id): SessionUser, Json(payload): Json<GetRequest>) -> Result<String, Error> {
+pub async fn get_credential(
+    Path(cred_id): Path<i32>,
+    State(app): State<App>,
+    SessionUser(user_id): SessionUser,
+    Json(payload): Json<GetRequest>,
+) -> Result<String, Error> {
     // verify user by email and hash of master password
     let user = sqlx::query!(
         "SELECT password_hash, master_salt FROM users WHERE id = $1",
@@ -146,7 +166,8 @@ pub async fn get_credential(Path(cred_id): Path<i32>, State(app): State<App>, Se
             "username": credential.username,
             "password": decrypted_password,
         }
-    }).to_string())
+    })
+    .to_string())
 }
 
 pub async fn update_credential() {}
@@ -157,7 +178,11 @@ pub struct DeleteRequest {
     pub master_password: String,
 }
 
-pub async fn delete_credential(Path(id): Path<i32>, State(app): State<App>, Json(payload): Json<DeleteRequest>) -> Result<String, Error> {
+pub async fn delete_credential(
+    Path(id): Path<i32>,
+    State(app): State<App>,
+    Json(payload): Json<DeleteRequest>,
+) -> Result<String, Error> {
     // verify user by email and hash of master password
     let user = sqlx::query!(
         "SELECT id, password_hash, master_salt FROM users WHERE email = $1",
@@ -186,5 +211,6 @@ pub async fn delete_credential(Path(id): Path<i32>, State(app): State<App>, Json
     Ok(serde_json::json!({
         "status": "success",
         "message": "Credential deleted successfully",
-    }).to_string())
+    })
+    .to_string())
 }

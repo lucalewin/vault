@@ -1,0 +1,17 @@
+[Unit]
+Description=Vault Password Manager
+After=network.target
+
+[Service]
+User=server
+Group=server
+ExecStart=/opt/vault/server
+Restart=always
+WorkingDirectory=/opt/vault
+Environment=VAULT_LOG_LEVEL=debug
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=vault
+
+[Install]
+WantedBy=multi-user.target

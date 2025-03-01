@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
-use axum::{Router, routing::get_service};
+use axum::{routing::get_service, Router};
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tokio::net::TcpListener;
 use tower_http::cors::CorsLayer;
+use tower_http::services::{ServeDir, ServeFile};
 use tower_http::trace::TraceLayer;
-use tower_http::services::ServeDir;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod api;
@@ -45,7 +45,7 @@ async fn main() {
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "tower_http=debug,axum=trace,vault=trace".into()),
+                .unwrap_or_else(|_| "tower_http=debug,axum::rejection=trace,vault=trace".into()),
         )
         .with(tracing_subscriber::fmt::layer().without_time())
         .init();
@@ -55,14 +55,13 @@ async fn main() {
     let app = Router::new()
         .nest("/api/v1", api::router())
         .with_state(Arc::new(state))
+        .fallback_service(
+            ServeDir::new("static")
+            // if the request path is not found, send the index.html of the SPA instead
+            .fallback(ServeFile::new("static/index.html"))
+        )
         .layer(CorsLayer::permissive())
-        .layer(TraceLayer::new_for_http())
-        .fallback(get_service(ServeDir::new("static")).handle_error(|error| async move {
-            (
-                axum::http::StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Unhandled internal error: {}", error),
-            )
-        }));
+        .layer(TraceLayer::new_for_http());
 
     let listener = TcpListener::bind("0.0.0.0:8000").await.unwrap();
     axum::serve(listener, app).await.unwrap();

@@ -8,7 +8,10 @@ use rand::RngCore;
 use serde::Deserialize;
 
 use crate::{
-    cipher::{derive_key, encrypt_data}, error::Error, session::generate_token, App
+    cipher::{derive_key, encrypt_data},
+    error::Error,
+    session::generate_token,
+    App,
 };
 
 #[derive(Deserialize)]
@@ -18,7 +21,10 @@ pub struct RegisterPayload {
     password: String,
 }
 
-pub async fn register(State(app): State<App>, Json(payload): Json<RegisterPayload>) -> Result<String, Error> {
+pub async fn register(
+    State(app): State<App>,
+    Json(payload): Json<RegisterPayload>,
+) -> Result<String, Error> {
     tracing::trace!("register new user");
 
     // create the hash for the master and recovery keys
@@ -26,7 +32,7 @@ pub async fn register(State(app): State<App>, Json(payload): Json<RegisterPayloa
     rand::rng().fill_bytes(&mut master_salt);
     let mut recovery_salt = [0u8; 16];
     rand::rng().fill_bytes(&mut recovery_salt);
-
+    
     // create a random recovery phrase
     let mut recovery_phrase = [0u8; 48];
     rand::rng().fill_bytes(&mut recovery_phrase);
@@ -73,7 +79,8 @@ pub async fn register(State(app): State<App>, Json(payload): Json<RegisterPayloa
     Ok(Json(serde_json::json!({
         "status": "success",
         "recovery_phrase": hex::encode(recovery_phrase)
-    })).to_string())
+    }))
+    .to_string())
 }
 
 #[derive(Deserialize)]
@@ -82,7 +89,10 @@ pub struct LoginPayload {
     password: String,
 }
 
-pub async fn login(State(app): State<App>, Json(payload): Json<LoginPayload>) -> Result<String, Error> {
+pub async fn login(
+    State(app): State<App>,
+    Json(payload): Json<LoginPayload>,
+) -> Result<String, Error> {
     tracing::trace!("login user");
 
     // get the user from the database
@@ -107,5 +117,6 @@ pub async fn login(State(app): State<App>, Json(payload): Json<LoginPayload>) ->
     Ok(serde_json::json!({
         "status": "success",
         "token": token
-    }).to_string())
+    })
+    .to_string())
 }
