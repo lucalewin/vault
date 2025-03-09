@@ -51,6 +51,8 @@ jobs:
       with:
         cache-all-crates: true
     - name: Migrate database
+      env:
+        DATABASE_URL: postgresql://postgres:password@localhost:5432/postgres
       run: |
         cargo install sqlx-cli --no-default-features --features native-tls,postgres
         sqlx migrate run
