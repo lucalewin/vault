@@ -20,22 +20,25 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
+
+
 
     - name: Set up Node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v4
       with:
         node-version: '22'
-
     - name: Install frontend dependencies
       run: |
         cd frontend
         npm install
-
     - name: Build frontend
       run: |
         cd frontend
         npm run build
+    
+
+
 
     - name: Set up Rust
       uses: actions-rs/toolchain@v1
@@ -43,12 +46,22 @@ jobs:
         toolchain: stable
         target: aarch64-unknown-linux-gnu
         override: true
-
+    - name: Add cache
+      uses: Swatinem/rust-cache@v2
+      with:
+        cache-all-crates: true
+    - name: Migrate database
+      run: |
+        cargo install sqlx-cli --no-default-features --features native-tls,postgres
+        sqlx migrate run
     - name: Build backend
       env:
         DATABASE_URL: postgresql://postgres:password@localhost:5432/postgres
       run: |
         cargo build --release
+
+
+
 
     - name: Zip frontend and backend
       run: |
