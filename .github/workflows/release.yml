@@ -4,6 +4,9 @@ on:
   release:
     types: [created]
 
+permissions: 
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -70,11 +73,17 @@ jobs:
         zip -r release.zip frontend/dist target/release/vault
 
     - name: Upload release asset
-      uses: actions/upload-release-asset@v1
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ./release.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./release.zip
-        asset_name: release.zip
-        asset_content_type: application/zip
+    # - name: Upload release asset
+    #   uses: actions/upload-release-asset@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: ${{ github.event.release.upload_url }}
+    #     asset_path: ./release.zip
+    #     asset_name: release.zip
+    #     asset_content_type: application/zip
