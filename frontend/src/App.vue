@@ -16,6 +16,8 @@ body {
   padding: 0;
   width: 100%;
   height: 100%;
+  background-color: #121212;
+  color: #e0e0e0;
 }
 
 #app {
@@ -32,7 +34,8 @@ body {
   max-width: 600px;
   width: 100%;
   padding-bottom: 1rem;
-  /* overflow: auto; */
+  background-color: #121212;
+  color: #e0e0e0;
+  /* Remove the border above the password list container */
 }
-
 </style>

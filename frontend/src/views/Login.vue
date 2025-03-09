@@ -68,7 +68,7 @@ form {
   gap: 1rem;
   margin: 8px;
   padding: 1rem;
-  border: 1px solid #ccc;
+  border: 1px solid #444; /* Less bright border */
   border-radius: 4px;
 }
 
@@ -85,9 +85,9 @@ form div {
   background: rgba(255, 255, 255, 0.15);
   overflow: hidden;
 }
+
 .loader::after {
   content: '';
-  /* width: 192px; */
   width: 392px;
   height: 4.8px;
   background: lightskyblue;

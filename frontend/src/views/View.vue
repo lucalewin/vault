@@ -6,7 +6,7 @@
         <label for="master_password">Master Password</label>
         <input type="password" id="master_password" v-model="masterPassword" class="input" required>
       </div>
-      <button type="submit" class="btn">Submit</button>
+      <button type="submit" class="button">Submit</button>
       <LinearSpinner :loading="loading" />
     </form>
     <div v-if="credentials.length">
@@ -108,7 +108,7 @@ const toggleShowPassword = (credential) => {
   gap: 1rem;
   margin: 8px;
   padding: 1rem;
-  border: 1px solid #ccc;
+  border: 1px solid #444; /* Less bright border */
   border-radius: 4px;
 }
 
@@ -120,10 +120,11 @@ form div {
 .credentials-list {
   list-style-type: none;
   padding: 0;
+  margin-bottom: 1rem; /* Add margin to the bottom */
 }
 
 .credential {
-  border: 1px solid #ccc;
+  border: 1px solid #444; /* Less bright border */
   border-radius: 8px;
   padding: 1rem;
   margin: 0 8px;

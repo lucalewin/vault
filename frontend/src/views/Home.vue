@@ -1,9 +1,9 @@
 <template>
   <div v-if="!isLoggedIn">
-    <button class="auth-button" @click="router.push('/login')">Login</button>
-    <button class="auth-button" @click="router.push('/register')">Register</button>
+    <button class="button" @click="router.push('/login')">Login</button>
+    <button class="button" @click="router.push('/register')">Register</button>
   </div>
-  <div v-else>
+  <div class="container" v-else>
     <div class="services">
       <div
         v-for="(credentials, service) in sortedServices"
@@ -84,9 +84,10 @@ a {
 
 .services {
   margin: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid #444; /* Less bright border */
   border-radius: 8px;
   overflow: hidden;
+  background-color: #1e1e1e; /* Match background color with body */
 }
 
 .service {
@@ -94,10 +95,10 @@ a {
   display: flex;
   align-items: center;
   gap: 1em;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #444; /* Less bright border */
 
   &:hover {
-    background-color: #f4f4f4;
+    background-color: #2a2a2a; /* Slightly lighter for hover effect */
     cursor: pointer;
   }
   &:last-child {
@@ -111,32 +112,25 @@ a {
 .new-credential {
   margin: 8px;
   padding: 1em 16px;
-  border: 1px solid #ccc;
+  border: 1px solid #444; /* Less bright border */
   border-radius: 8px;
   display: flex;
   gap: 1em;
   align-items: center;
   overflow: hidden;
-
+  background-color: #1e1e1e; /* Match background color with body */
+  
   &:hover {
-    background-color: #f4f4f4;
+    background-color: #2a2a2a; /* Slightly lighter for hover effect */
     cursor: pointer;
   }
 }
 
-.auth-button {
-  margin: 8px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  background-color: #007bff;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+.container {
+  margin-bottom: 1600px;
 }
 
-.auth-button:hover {
-  background-color: #0056b3;
+.button {
+  margin: 8px;
 }
 </style>

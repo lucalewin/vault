@@ -137,7 +137,7 @@ form {
   gap: 1rem;
   margin: 8px;
   padding: 1rem;
-  border: 1px solid #ccc;
+  border: 1px solid #444; /* Less bright border */
   border-radius: 4px;
 }
 
@@ -168,7 +168,6 @@ form div {
   display: flex;
   position: absolute;
   align-items: center;
-  /* gap: 0.5rem; */
   right: 0;
   height: 100%;
   z-index: 1000;

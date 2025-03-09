@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use axum::{routing::get_service, Router};
+use axum::Router;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use tokio::net::TcpListener;
 use tower_http::cors::CorsLayer;

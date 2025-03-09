@@ -2,17 +2,22 @@
 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-feature-settings: 'liga' 1, 'calt' 1; /* fix for Chrome */
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light;
-  color: #000;
-  background-color: #fff;
+  color-scheme: dark;
+  color: #fff;
+  background-color: #121212;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@supports (font-variation-settings: normal) {
+  :root { font-family: InterVariable, sans-serif; }
 }
 
 * {
@@ -21,24 +26,37 @@
   padding: 0;
 }
 
-.btn, button[type="submit"] {
+body {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+a {
+  color: #bb86fc;
+}
+
+.btn, button[type="submit"], .button {
   outline: none;
   border: none;
-  background-color: darkorange;
+  background-color: #6200ea; /* Purple button color */
+  color: #ffffff; /* White font color */
+  font-weight: bold; /* Bold font */
   border-radius: 8px;
   line-height: 2.5em;
   font-size: 16px;
   padding: 4px 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 
   &:hover {
-    background-color: orange;
+    background-color: #3700b3; /* Darker purple hover color */
   }
 }
 
 input {
-  border: 1px solid #aaa;
-  /* outline: none; */
-  /* background-color: #dae6ff57; */
+  border: 1px solid #444; /* Less bright border */
+  background-color: #333;
+  color: #e0e0e0;
   border-radius: 8px;
   padding: 6px 8px;
   line-height: 1.5em;
@@ -46,14 +64,27 @@ input {
 }
 
 i.pi {
-  color: #555;
+  color: #bbb;
   padding: 6px;
   border-radius: 100%;
 }
 
 span i.pi {
   &:hover {
-    /* color: #000; */
-    background-color: #cccccc71;
+    background-color: #444;
   }
+}
+
+header {
+  background-color: #2a2a2a; /* Darker background color for the header */
+  color: #e0e0e0;
+  padding: 1rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* More prominent shadow */
+  border-bottom: 1px solid #444; /* Less bright border */
+}
+
+.password-list-container {
+  background-color: #1e1e1e;
+  padding: 1rem;
+  border-radius: 8px;
 }

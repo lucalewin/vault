@@ -14,7 +14,7 @@
         <label for="password">Password:</label>
         <input type="password" id="password" v-model="password" required />
       </div>
-      <button type="submit">Register</button>
+      <button type="submit" class="button">Register</button>
       <LinearSpinner :loading="loading" />
       <p v-if="error" style="color: red;">{{ error }}</p>
     </form>
@@ -105,24 +105,27 @@ const copyRecoveryPhrase = () => {
 </script>
 
 <style scoped>
-/* Add styles similar to the login page */
 .register {
   max-width: 400px;
   margin: 0 auto;
   padding: 1em;
-  border: 1px solid #ccc;
+  border: 1px solid #444; /* Less bright border */
   border-radius: 4px;
 }
+
 .register h1 {
   text-align: center;
 }
+
 .register div {
   margin-bottom: 1em;
 }
+
 .register label {
   display: block;
   margin-bottom: 0.5em;
 }
+
 .register input {
   width: 100%;
   padding: 0.5em;
@@ -130,38 +133,38 @@ const copyRecoveryPhrase = () => {
   color: #000; /* Ensure text color is black */
   background-color: #fff; /* Ensure background color is white */
 }
+
 .register button {
   width: 100%;
   padding: 0.7em;
-  background-color: #007bff;
+  background-color: #6200ea; /* Purple button color */
   border: none;
   color: white;
+  font-weight: bold; /* Bold font */
   cursor: pointer;
 }
+
 .register button:hover {
-  background-color: #0056b3;
+  background-color: #3700b3; /* Darker purple hover color */
 }
+
 .recovery-phrase {
   display: flex;
   align-items: center;
   gap: 0.5em;
 }
-/* .recovery-phrase input {
-  flex: 1;
-  padding: 0.5em;
-  box-sizing: border-box;
-  color: #000; 
-  background-color: #fff; 
-} */
+
 .recovery-phrase button {
   padding: 0.5em 1em;
-  background-color: #007bff;
+  background-color: #6200ea; /* Purple button color */
   border: none;
   color: white;
+  font-weight: bold; /* Bold font */
   cursor: pointer;
 }
+
 .recovery-phrase button:hover {
-  background-color: #0056b3;
+  background-color: #3700b3; /* Darker purple hover color */
 }
 
 .input-container {
