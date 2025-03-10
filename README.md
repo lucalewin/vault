@@ -20,7 +20,11 @@ Vault is a secure password manager and authenticator application built with Rust
 
 ### Installation
 
-1. Clone the repository:
+```bash
+curl -L https://raw.githubusercontent.com/lucalewin/vault/main/install.sh | sudo bash
+```
+
+<!-- 1. Clone the repository:
     ```sh
     git clone https://github.com/lucalewin/vault.git
     cd vault
@@ -36,7 +40,7 @@ Vault is a secure password manager and authenticator application built with Rust
     just run
     ```
 
-4. Open your browser and navigate to `http://localhost:8000`.
+4. Open your browser and navigate to `http://localhost:8000`. -->
 
 ## Roadmap
 

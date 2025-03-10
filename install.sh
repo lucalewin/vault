@@ -15,7 +15,7 @@ rm -rf "/opt/vault/static"
 
 # create the new service
 cp -r "release/frontend/dist/" "/opt/vault/static"
-cp "release/target/release/vault" "/opt/vault/server"
+cp "release/target/aarch64-unknown-linux-gnu/release/vault" "/opt/vault/server"
 # cp "vault.service" "/etc/systemd/system/vault.service"
 systemctl enable vault
 systemctl start vault
