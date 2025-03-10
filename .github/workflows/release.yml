@@ -57,11 +57,12 @@ jobs:
         DATABASE_URL: postgresql://postgres:password@localhost:5432/postgres
       run: |
         cargo install sqlx-cli --no-default-features --features native-tls,postgres
-        sqlx migrate run
+        cargo sqlx prepare
     - name: Build
       uses: actions-rs/cargo@v1
       env:
-        DATABASE_URL: postgresql://postgres:password@localhost:5432/postgres
+        # DATABASE_URL: postgresql://postgres:password@localhost:5432/postgres
+        SQLX_OFFLINE: true
       with:
         command: build
         args: --release --target=aarch64-unknown-linux-gnu
