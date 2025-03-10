@@ -43,10 +43,10 @@ jobs:
     #   with:
     #     toolchain: stable
     #     target: aarch64-unknown-linux-gnu
-    - name: Install dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
+    # - name: Install dependencies
+    #   run: |
+    #     sudo apt update
+    #     sudo apt install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
 
     - name: Set up Rust
       uses: dtolnay/rust-toolchain@stable
@@ -58,10 +58,18 @@ jobs:
       run: |
         cargo install sqlx-cli --no-default-features --features native-tls,postgres
         sqlx migrate run
-    - name: Build backend
+    - name: Build
+      uses: actions-rs/cargo@v1
       env:
         DATABASE_URL: postgresql://postgres:password@localhost:5432/postgres
-      run: cargo build --release --target aarch64-unknown-linux-gnu
+      with:
+        command: build
+        args: --release --target=aarch64-unknown-linux-gnu
+        use-cross: true
+    # - name: Build backend
+    #   env:
+    #     DATABASE_URL: postgresql://postgres:password@localhost:5432/postgres
+    #   run: cargo build --release --target aarch64-unknown-linux-gnu
     - name: Add cache
       uses: Swatinem/rust-cache@v2
       with:
