@@ -22,37 +22,26 @@ jobs:
           - 5432:5432
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-
-
-    - name: Set up Node.js
+    - name: Setup Node.js 22.x
       uses: actions/setup-node@v4
       with:
-        node-version: '22'
-    - name: Install frontend dependencies
-      run: |
-        cd frontend
-        npm install
-    - name: Build frontend
-      run: |
-        cd frontend
-        npm run build
+        node-version: 22.x
+        cache: npm
     
-
-
-
+    - name: Install frontend dependencies
+      working-directory: frontend
+      run: npm install
+    - name: Build frontend
+      working-directory: frontend
+      run: npm run build
+    
     - name: Set up Rust
       uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
         target: aarch64-unknown-linux-gnu
-        override: true
-    - name: Add cache
-      uses: Swatinem/rust-cache@v2
-      with:
-        cache-all-crates: true
     - name: Migrate database
       env:
         DATABASE_URL: postgresql://postgres:password@localhost:5432/postgres
@@ -62,15 +51,16 @@ jobs:
     - name: Build backend
       env:
         DATABASE_URL: postgresql://postgres:password@localhost:5432/postgres
-      run: |
-        cargo build --release
-
-
+      run: cargo build --release --target aarch64-unknown-linux-gnu
+    - name: Add cache
+      uses: Swatinem/rust-cache@v2
+      with:
+        cache-all-crates: true
 
 
     - name: Zip frontend and backend
       run: |
-        zip -r release.zip frontend/dist target/release/vault
+        zip -r release.zip frontend/dist target/aarch64-unknown-linux-gnu/release/vault
 
     - name: Upload release asset
       uses: softprops/action-gh-release@v1
