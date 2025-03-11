@@ -1,36 +1,8 @@
-<template>
-  <div v-if="!isLoggedIn">
-    <button class="button" @click="router.push('/login')">Login</button>
-    <button class="button" @click="router.push('/register')">Register</button>
-  </div>
-  <div class="container" v-else>
-    <div class="services">
-      <div
-        v-for="(credentials, service) in sortedServices"
-        :key="service"
-        class="service"
-        @click="navigateToChallenge(service, credentials)"
-      >
-        <i class="pi pi-globe"></i>
-        <span>{{ service }}</span>
-        <i class="pi pi-chevron-right"></i>
-      </div>
-    </div>
-    <div class="new-credential" v-on:click="router.push('/new')">
-      <i class="pi pi-plus"></i>
-      <span class="bg-red-500">New credential</span>
-    </div>
-    <div class="new-credential" v-on:click="export_passwords('1234')">
-      <i class="pi pi-download"></i>
-      <span>Export</span>
-    </div>
-  </div>
-</template>
-
 <script setup>
 import { onMounted, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { export_passwords } from '../lib/api/credentials';
+
+import Container from '@/components/Container.vue';
 
 const router = useRouter();
 const isLoggedIn = ref(false);
@@ -81,7 +53,60 @@ const navigateToChallenge = (service, credentials) => {
 };
 </script>
 
+<template>
+  <h1 class="m-2 font-bold text-3xl">Passwords</h1>
+  <Container v-if="!isLoggedIn">
+    <div >
+      <p>Please log in first!</p>
+      <RouterLink to="/login">Log in</RouterLink>
+    </div>
+  </Container>
+  <Container v-else>
+    <div class="flex gap-2">
+      <button class="rounded bg-white text-black p-2 px-4" v-on:click="router.push('/new')">New Credential</button>
+      <button class="rounded bg-white text-black p-2 px-4" v-on:click="export_passwords('1234')">Export</button>
+    </div>
+    <!-- <div class="new-credential" v-on:click="router.push('/new')">
+      <i class="pi pi-plus"></i>
+      <span>New credential</span>
+    </div>
+    <div class="new-credential" v-on:click="export_passwords('1234')">
+      <i class="pi pi-download"></i>
+      <span>Export</span>
+    </div> -->
+    <div class="my-2 bg-gray-800 rounded-xl overflow-hidden">
+      <p class="px-4 py-2 border-b border-gray-400 font-bold">
+        Service
+      </p>
+      <div class="divide-y divide-gray-700">
+        <div
+          v-for="(credentials, service) in sortedServices"
+          :key="service"
+          class="py-3 px-4 hover:bg-gray-700"
+          @click="navigateToChallenge(service, credentials)"
+        >
+          {{ service }}
+        </div>
+      </div>
+    </div>
+    
+  </Container>
+</template>
+
 <style scoped>
+.secondary-button {
+  background-color: #e2e8f0;
+  color: #1a202c;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+.secondary-button:hover {
+  background-color: #cbd5e0;
+}
 a {
   color: black;
   text-decoration: none;
@@ -130,15 +155,5 @@ a {
     cursor: pointer;
   }
 }
-
-.container {
-  margin-bottom: 1600px;
-}
-
-.button {
-  margin: 8px;
-  
-}
-
 
 </style>

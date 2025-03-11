@@ -23,20 +23,28 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-
-    - name: Setup Node.js 22
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
-        cache: npm
-        cache-dependency-path: frontend/package-lock.json
+    - uses: oven-sh/setup-bun@v2
     
-    - name: Install frontend dependencies
-      working-directory: frontend
-      run: npm install
-    - name: Build frontend
-      working-directory: frontend
-      run: npm run build
+    - name: Build and install frontend dependencies
+      working-directory: front  
+      run: |
+        bun install
+        bun run build
+
+
+    # - name: Setup Node.js 22
+    #   uses: actions/setup-node@v4
+    #   with:
+    #     node-version: '22'
+    #     cache: npm
+    #     cache-dependency-path: frontend/package-lock.json
+    
+    # - name: Install frontend dependencies
+    #   working-directory: frontend
+    #   run: npm install
+    # - name: Build frontend
+    #   working-directory: frontend
+    #   run: npm run build
     
     - name: Set up Rust
       uses: dtolnay/rust-toolchain@stable
@@ -64,7 +72,7 @@ jobs:
 
     - name: Zip frontend and backend
       run: |
-        zip -r release.zip frontend/dist target/aarch64-unknown-linux-gnu/release/vault
+        zip -r release.zip front/dist target/aarch64-unknown-linux-gnu/release/vault
 
     - name: Upload release asset
       uses: softprops/action-gh-release@v1
