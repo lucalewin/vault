@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -7,17 +7,19 @@ import Container from '@/components/Container.vue';
 const router = useRouter();
 const isLoggedIn = ref(false);
 const credentials = ref([]);
+interface Credential {
+  id: string;
+  service: string;
+  [key: string]: any;
+}
 
-onMounted(() => {
-  const token = localStorage.getItem('api_token');
-  const isTokenExpired = token => Date.now() >= (JSON.parse(atob(token.split('.')[1]))).exp * 1000;
-  if (token && !isTokenExpired(token)) {
-    isLoggedIn.value = true;
-    fetchCredentials();
-  }
-});
+interface GroupedCredentials {
+  [key: string]: Credential[];
+}
 
-const fetchCredentials = async () => {
+const isTokenExpired = (token: string): boolean => Date.now() >= (JSON.parse(atob(token.split('.')[1]))).exp * 1000;
+
+const fetchCredentials = async (): Promise<void> => {
   const token = localStorage.getItem('api_token');
   const response = await fetch('/api/v1/credentials', {
     headers: {
@@ -28,8 +30,8 @@ const fetchCredentials = async () => {
   credentials.value = data.credentials;
 };
 
-const groupedCredentials = computed(() => {
-  return credentials.value.reduce((acc, credential) => {
+const groupedCredentials = computed<GroupedCredentials>(() => {
+  return credentials.value.reduce((acc: GroupedCredentials, credential: Credential) => {
     if (!acc[credential.service]) {
       acc[credential.service] = [];
     }
@@ -38,19 +40,67 @@ const groupedCredentials = computed(() => {
   }, {});
 });
 
-const sortedServices = computed(() => {
+const sortedServices = computed<GroupedCredentials>(() => {
   const services = Object.keys(groupedCredentials.value);
   services.sort();
-  return services.reduce((acc, service) => {
+  return services.reduce((acc: GroupedCredentials, service: string) => {
     acc[service] = groupedCredentials.value[service];
     return acc;
   }, {});
 });
 
-const navigateToChallenge = (service, credentials) => {
+const navigateToChallenge = (credentials: Credential[]): void => {
   const ids = credentials.map(credential => credential.id).join(',');
   router.push({ path: '/view', query: { ids } });
 };
+
+const export_passwords = (password: string): void => {
+  // console.log(`Exporting passwords with password: ${password}`);
+  // TODO
+};
+onMounted(() => {
+  const token = localStorage.getItem('api_token');
+  // const isTokenExpired = token => Date.now() >= (JSON.parse(atob(token.split('.')[1]))).exp * 1000;
+  if (token && !isTokenExpired(token)) {
+    isLoggedIn.value = true;
+    fetchCredentials();
+  }
+});
+
+// const fetchCredentials = async () => {
+//   const token = localStorage.getItem('api_token');
+//   const response = await fetch('/api/v1/credentials', {
+//     headers: {
+//       'Authorization': `Bearer ${token}`
+//     }
+//   });
+//   const data = await response.json();
+//   credentials.value = data.credentials;
+// };
+
+// const groupedCredentials = computed(() => {
+//   return credentials.value.reduce((acc, credential) => {
+//     if (!acc[credential.service]) {
+//       acc[credential.service] = [];
+//     }
+//     acc[credential.service].push(credential);
+//     return acc;
+//   }, {});
+// });
+
+// const sortedServices = computed(() => {
+//   const services = Object.keys(groupedCredentials.value);
+//   services.sort();
+//   return services.reduce((acc, service) => {
+//     acc[service] = groupedCredentials.value[service];
+//     return acc;
+//   }, {});
+// });
+
+// const navigateToChallenge = (service, credentials) => {
+//   const ids = credentials.map(credential => credential.id).join(',');
+//   router.push({ path: '/view', query: { ids } });
+// };
 </script>
 
 <template>
@@ -83,7 +133,7 @@ const navigateToChallenge = (service, credentials) => {
           v-for="(credentials, service) in sortedServices"
           :key="service"
           class="py-3 px-4 hover:bg-gray-700"
-          @click="navigateToChallenge(service, credentials)"
+          @click="navigateToChallenge(credentials)"
         >
           {{ service }}
         </div>
