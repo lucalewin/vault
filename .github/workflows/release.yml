@@ -38,16 +38,6 @@ jobs:
       working-directory: frontend
       run: npm run build
     
-    # - name: Set up Rust
-    #   uses: actions-rs/toolchain@v1
-    #   with:
-    #     toolchain: stable
-    #     target: aarch64-unknown-linux-gnu
-    # - name: Install dependencies
-    #   run: |
-    #     sudo apt update
-    #     sudo apt install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
-
     - name: Set up Rust
       uses: dtolnay/rust-toolchain@stable
       with:
@@ -55,28 +45,22 @@ jobs:
     - name: Migrate database
       env:
         DATABASE_URL: postgresql://postgres:password@localhost:5432/postgres
-      run: |
+      run: | # workaround for cross compilation
         cargo install sqlx-cli --no-default-features --features native-tls,postgres
         sqlx migrate run
         cargo sqlx prepare
     - name: Build
       uses: actions-rs/cargo@v1
       env:
-        # DATABASE_URL: postgresql://postgres:password@localhost:5432/postgres
         SQLX_OFFLINE: true
       with:
         command: build
         args: --release --target=aarch64-unknown-linux-gnu
         use-cross: true
-    # - name: Build backend
-    #   env:
-    #     DATABASE_URL: postgresql://postgres:password@localhost:5432/postgres
-    #   run: cargo build --release --target aarch64-unknown-linux-gnu
     - name: Add cache
       uses: Swatinem/rust-cache@v2
       with:
         cache-all-crates: true
-
 
     - name: Zip frontend and backend
       run: |
@@ -88,12 +72,3 @@ jobs:
         files: ./release.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    # - name: Upload release asset
-    #   uses: actions/upload-release-asset@v1
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #   with:
-    #     upload_url: ${{ github.event.release.upload_url }}
-    #     asset_path: ./release.zip
-    #     asset_name: release.zip
-    #     asset_content_type: application/zip

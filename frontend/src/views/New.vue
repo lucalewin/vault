@@ -15,9 +15,9 @@
         <span class="password-container">
           <input :type="showPassword ? 'text' : 'password'" id="password" v-model="password" class="input" required>
           <span class="input-icons">
-            <span @click="generatePassword"><i class="pi pi-refresh"></i></span>
-            <span @click="copyPassword"><i class="pi pi-copy"></i></span>
-            <span @click="toggleShowPassword"><i :class="showPassword ? 'pi pi-eye-slash': 'pi pi-eye'"></i></span>
+            <span @click="password = generatePassword()"><i class="pi pi-refresh"></i></span>
+            <span @click="copyToClipboard(password)"><i class="pi pi-copy"></i></span>
+            <span @click="showPassword = !showPassword"><i :class="showPassword ? 'pi pi-eye': 'pi pi-eye-slash'"></i></span>
           </span>
         </span>
       </div>
@@ -36,6 +36,8 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import LinearSpinner from '../components/LinearSpinner.vue';
+import { copyToClipboard, generatePassword } from '../lib/util';
+import { new_credential } from '../lib/api/credentials';
 
 const router = useRouter();
 const service = ref('');
@@ -46,77 +48,21 @@ const showPassword = ref(false);
 const loading = ref(false);
 const error = ref('');
 
-const generatePassword = () => {
-  const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const lower = 'abcdefghijklmnopqrstuvwxyz';
-  const numbers = '0123456789';
-  const symbols = '!@#$%^&*()_+[]{}|;:,.<>?';
-  const allChars = upper + lower + numbers + symbols;
-
-  let generatedPassword = '';
-  generatedPassword += upper.charAt(Math.floor(Math.random() * upper.length));
-  generatedPassword += lower.charAt(Math.floor(Math.random() * lower.length));
-  generatedPassword += numbers.charAt(Math.floor(Math.random() * numbers.length));
-  generatedPassword += symbols.charAt(Math.floor(Math.random() * symbols.length));
-
-  for (let i = 4; i < 25; i++) {
-    generatedPassword += allChars.charAt(Math.floor(Math.random() * allChars.length));
-  }
-
-  password.value = generatedPassword.split('').sort(() => 0.5 - Math.random()).join('');
-};
-
-const copyPassword = () => {
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(password.value).then(() => {
-      // alert('Password copied to clipboard! 234234234');
-    }).catch(err => {
-      console.error('Failed to copy password:', err);
-    });
-  } else {
-    const textArea = document.createElement('textarea');
-    textArea.value = password.value;
-    document.body.appendChild(textArea);
-    textArea.select();
-    try {
-      document.execCommand('copy');
-    } catch (err) {
-      console.error('Failed to copy password:', err);
-    }
-    document.body.removeChild(textArea);
-  }
-};
-
-const toggleShowPassword = () => {
-  showPassword.value = !showPassword.value;
-};
+// const toggleShowPassword = () => {
+//   showPassword.value = !showPassword.value;
+// };
 
 const handleSubmit = async () => {
   loading.value = true;
   try {
-    const token = localStorage.getItem('api_token');
-    const response = await fetch('/api/v1/credentials', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        service: service.value,
-        username: username.value,
-        password: password.value,
-        master_password: master_password.value,
-      }),
-    });
+    const data = await new_credential(
+      service.value,
+      username.value,
+      password.value,
+      master_password.value
+    );
 
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-
-    // check if json message contains status=sucess
-    const data = await response.json();
     if (data.status !== 'success') {
-      // throw new Error('Failed to save credential');
       error.value = data.message;
     } else {
       router.push('/');
@@ -137,7 +83,7 @@ form {
   gap: 1rem;
   margin: 8px;
   padding: 1rem;
-  border: 1px solid #444; /* Less bright border */
+  border: 1px solid #444;
   border-radius: 4px;
 }
 

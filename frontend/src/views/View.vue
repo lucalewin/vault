@@ -27,7 +27,7 @@
             <div class="input-container">
               <input :type="credential.showPassword ? 'text' : 'password'" id="password" :value="credential.credential.password" class="input" readonly>
               <span class="input-icons">
-                <span @click="toggleShowPassword(credential)"><i :class="credential.showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i></span>
+                <span @click="toggleShowPassword(credential)"><i :class="credential.showPassword ? 'pi pi-eye' : 'pi pi-eye-slash'"></i></span>
                 <span @click="copyToClipboard(credential.credential.password)"><i class="pi pi-copy"></i></span>
               </span>
             </div>
@@ -42,6 +42,7 @@
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 import LinearSpinner from '../components/LinearSpinner.vue';
+import { copyToClipboard } from '../lib/util';
 
 const route = useRoute();
 const masterPassword = ref('');
@@ -72,28 +73,6 @@ const handleSubmit = async () => {
   }
   console.log(credentials.value);
   loading.value = false;
-};
-
-const copyToClipboard = (text) => {
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(() => {
-      alert('Copied to clipboard!');
-    }).catch(err => {
-      console.error('Failed to copy:', err);
-    });
-  } else {
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    document.body.appendChild(textArea);
-    textArea.select();
-    try {
-      document.execCommand('copy');
-      alert('Copied to clipboard!');
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-    document.body.removeChild(textArea);
-  }
 };
 
 const toggleShowPassword = (credential) => {

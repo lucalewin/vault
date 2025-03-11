@@ -20,12 +20,17 @@
       <i class="pi pi-plus"></i>
       <span>New credential</span>
     </div>
+    <div class="new-credential" v-on:click="export_passwords('1234')">
+      <i class="pi pi-download"></i>
+      <span>Export</span>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { onMounted, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { export_passwords } from '../lib/api/credentials';
 
 const router = useRouter();
 const isLoggedIn = ref(false);
