@@ -32,7 +32,7 @@ pub async fn register(
     rand::rng().fill_bytes(&mut master_salt);
     let mut recovery_salt = [0u8; 16];
     rand::rng().fill_bytes(&mut recovery_salt);
-    
+
     // create a random recovery phrase
     let mut recovery_phrase = [0u8; 48];
     rand::rng().fill_bytes(&mut recovery_phrase);
@@ -119,4 +119,13 @@ pub async fn login(
         "token": token
     })
     .to_string())
+}
+
+#[derive(Deserialize)]
+struct VerifyRequest {
+    code: String,
+}
+
+pub fn verify(State(app): State<App>, Json(payload): Json<VerifyRequest>) {
+    // the code is a jwt, verify this
 }

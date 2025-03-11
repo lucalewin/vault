@@ -11,6 +11,7 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 mod api;
 mod cipher;
 mod error;
+pub mod mailer;
 mod session;
 
 #[derive(Debug)]
@@ -57,8 +58,8 @@ async fn main() {
         .with_state(Arc::new(state))
         .fallback_service(
             ServeDir::new("static")
-            // if the request path is not found, send the index.html of the SPA instead
-            .fallback(ServeFile::new("static/index.html"))
+                // if the request path is not found, send the index.html of the SPA instead
+                .fallback(ServeFile::new("static/index.html")),
         )
         .layer(CorsLayer::permissive())
         .layer(TraceLayer::new_for_http());

@@ -24,4 +24,6 @@ pub fn router() -> Router<App> {
                 .put(credentials::update_credential)
                 .delete(credentials::delete_credential),
         )
+        // .route("/credentials/import", post(credentials::import))
+        .route("/credentials/export", post(credentials::export))
 }

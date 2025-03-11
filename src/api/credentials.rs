@@ -214,3 +214,56 @@ pub async fn delete_credential(
     })
     .to_string())
 }
+
+#[derive(Deserialize)]
+pub struct ExportRequest {
+    master_password: String,
+}
+
+pub async fn export(
+    State(app): State<App>,
+    SessionUser(user_id): SessionUser,
+    Json(payload): Json<ExportRequest>,
+) -> Result<String, Error> {
+    let user = sqlx::query!(
+        "SELECT password_hash, master_salt FROM users WHERE id = $1",
+        user_id
+    )
+    .fetch_one(&app.db)
+    .await
+    .expect("Failed to fetch user from database");
+    // get all entries from this user
+    let entries = sqlx::query!(
+        "SELECT service, username, password FROM credentials WHERE user_id = $1",
+        user_id
+    )
+    .fetch_all(&app.db)
+    .await
+    .unwrap();
+
+    #[derive(Serialize)]
+    struct Entry {
+        service: String,
+        username: String,
+        password: String,
+    }
+    
+    let entries = {
+        let key = derive_key(payload.master_password.as_bytes(), &user.master_salt, 32);
+        entries
+            .into_iter()
+            .map(|e| Entry {
+                service: e.service,
+                username: e.username,
+                password: {
+                    let nonce = &e.password[..12];
+                    let ciphertext = &e.password[12..];
+                    let plaintext = decrypt_data(ciphertext, nonce, &key);
+                    String::from_utf8(plaintext).unwrap()
+                },
+            })
+            .collect::<Vec<_>>()
+    };
+
+    Ok(serde_json::to_string(&entries).unwrap())
+}
