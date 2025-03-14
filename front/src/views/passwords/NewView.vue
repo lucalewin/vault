@@ -1,47 +1,46 @@
 <template>
-  <h1 class="m-2 font-bold text-3xl">New Password</h1>
-  <Container>
-    <form @submit.prevent="handleSubmit" class="mx-auto w-full max-w-sm p-8 mt-16 space-y-4 sm:border border-gray-700 rounded shadow-md">
-      <h1>New credential</h1>
+  <div class="mx-auto mt-16 w-full max-w-sm">
+    <form @submit.prevent="handleSubmit" class="border border-neutral-600 bg-neutral-800 rounded-2xl p-6 space-y-4">
+      <h2 class="text-2xl font-semibold">New Password</h2>
       <div>
         <label for="service" class="block text-sm font-medium text-gray-300">Service</label>
-        <input type="text" id="service" v-model="service" class="w-full px-3 py-2 mt-1 border border-gray-700 rounded" required>
+        <input type="text" id="service" v-model="service" class="w-full px-3 py-2 mt-1 border border-neutral-600 rounded" required>
       </div>
       <div>
         <label for="username" class="block text-sm font-medium text-gray-300">Username</label>
-        <input type="text" id="username" v-model="username" class="w-full px-3 py-2 mt-1 border border-gray-700 rounded" required>
+        <input type="text" id="username" v-model="username" class="w-full px-3 py-2 mt-1 border border-neutral-600 rounded" required>
       </div>
       <div class="password-container">
         <label for="password" class="block text-sm font-medium text-gray-300">Password</label>
         <div class="password-input">
           <span class="password-container">
-            <input :type="showPassword ? 'text' : 'password'" id="password" v-model="password" class="w-full px-3 py-2 mt-1 border border-gray-700 rounded" required>
-            <span class="input-icons">
-              <span @click="password = generatePassword()">Gen </span>
-              <span @click="copyToClipboard(password)">Copy </span>
-              <span @click="showPassword = !showPassword">View</span>
+            <input :type="showPassword ? 'text' : 'password'" id="password" v-model="password" class="w-full px-3 py-2 pr-22 mt-1 border border-neutral-600 rounded" required>
+            <span class="text-sm pt-1 text-neutral-400 flex absolute right-0 h-full gap-3 mr-3 items-center z-1">
+              <i class="pi pi-sync" @click="password = generatePassword()"></i>
+              <i class="pi pi-copy" @click="copyToClipboard(password)"></i>
+              <i class="pi pi-eye-slash" @click="showPassword = !showPassword"></i>
             </span>
           </span>
         </div>
       </div>
       <div>
         <label for="master_password" class="block text-sm font-medium text-gray-300">Master Password</label>
-        <input type="password" id="master_password" v-model="master_password" class="w-full px-3 py-2 mt-1 border border-gray-700 rounded" required>
+        <input type="password" id="master_password" v-model="master_password" class="w-full px-3 py-2 mt-1 border border-neutral-600 rounded" required>
       </div>
       <div>
-        <button type="submit" class="w-full px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700">Save</button>
+        <button type="submit" class="w-full px-4 py-2 font-semibold text-white bg-green-500/60 rounded hover:bg-green-700 focus:bg-green-700">Save</button>
       </div>
       <p v-if="error" style="color: red;">{{ error }}</p>
     </form>
-  </Container>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 // import LinearSpinner from '../components/LinearSpinner.vue';
-import { copyToClipboard, generatePassword } from '../lib/util';
-import { new_credential } from '../lib/api/credentials';
+import { copyToClipboard, generatePassword } from '@/lib/util';
+import { new_credential } from '@/lib/api/credentials';
 import Container from '@/components/Container.vue';
 
 const router = useRouter();
@@ -110,12 +109,12 @@ form div {
   position: relative;
 }
 
-.password-input input {
+/* .password-input input {
   flex: 1;
   padding-right: 85px;
-}
+} */
 
-.input-icons {
+/* .input-icons {
   display: flex;
   position: absolute;
   align-items: center;
@@ -123,18 +122,13 @@ form div {
   height: 100%;
   z-index: 1000;
   margin-right: 12px;
-}
+} */
 
-.input-icons span {
+/* .input-icons span {
   background: none;
   border: none;
   cursor: pointer;
   margin-left: 0.5rem;
-}
+} */
 
-@media screen and (max-width: 440px) {
-  form {
-    border: none;
-  }
-}
 </style>

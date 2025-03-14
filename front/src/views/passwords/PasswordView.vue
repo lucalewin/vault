@@ -51,7 +51,7 @@ const sortedServices = computed<GroupedCredentials>(() => {
 
 const navigateToChallenge = (credentials: Credential[]): void => {
   const ids = credentials.map(credential => credential.id).join(',');
-  router.push({ path: '/view', query: { ids } });
+  router.push({ path: '/passwords/view', query: { ids } });
 };
 
 const export_passwords = (password: string): void => {
@@ -66,76 +66,35 @@ onMounted(() => {
     fetchCredentials();
   }
 });
-
-// const fetchCredentials = async () => {
-//   const token = localStorage.getItem('api_token');
-//   const response = await fetch('/api/v1/credentials', {
-//     headers: {
-//       'Authorization': `Bearer ${token}`
-//     }
-//   });
-//   const data = await response.json();
-//   credentials.value = data.credentials;
-// };
-
-// const groupedCredentials = computed(() => {
-//   return credentials.value.reduce((acc, credential) => {
-//     if (!acc[credential.service]) {
-//       acc[credential.service] = [];
-//     }
-//     acc[credential.service].push(credential);
-//     return acc;
-//   }, {});
-// });
-
-// const sortedServices = computed(() => {
-//   const services = Object.keys(groupedCredentials.value);
-//   services.sort();
-//   return services.reduce((acc, service) => {
-//     acc[service] = groupedCredentials.value[service];
-//     return acc;
-//   }, {});
-// });
-
-// const navigateToChallenge = (service, credentials) => {
-//   const ids = credentials.map(credential => credential.id).join(',');
-//   router.push({ path: '/view', query: { ids } });
-// };
 </script>
 
 <template>
   <h1 class="m-2 font-bold text-3xl">Passwords</h1>
   <Container v-if="!isLoggedIn">
-    <div >
+    <div>
       <p>Please log in first!</p>
       <RouterLink to="/login">Log in</RouterLink>
     </div>
   </Container>
   <Container v-else>
     <div class="flex gap-2">
-      <button class="rounded bg-white text-black p-2 px-4" v-on:click="router.push('/new')">New Credential</button>
-      <button class="rounded bg-white text-black p-2 px-4" v-on:click="export_passwords('1234')">Export</button>
+      <button class="px-4 py-2 font-semibold text-white bg-green-500/60 rounded hover:bg-green-700 focus:bg-green-700" v-on:click="router.push('/passwords/new')">New Credential</button>
+      <button class="px-4 py-2 font-semibold text-white bg-green-500/60 rounded hover:bg-green-700 focus:bg-green-700" v-on:click="export_passwords('1234')">Export</button>
     </div>
-    <!-- <div class="new-credential" v-on:click="router.push('/new')">
-      <i class="pi pi-plus"></i>
-      <span>New credential</span>
-    </div>
-    <div class="new-credential" v-on:click="export_passwords('1234')">
-      <i class="pi pi-download"></i>
-      <span>Export</span>
-    </div> -->
-    <div class="my-2 bg-gray-800 rounded-xl overflow-hidden">
-      <p class="px-4 py-2 border-b border-gray-400 font-bold">
+    <div class="my-2 bg-nautral-800 rounded-xl overflow-hidden">
+      <p class="px-4 py-2 border-b border-neutral-400 font-bold">
         Service
       </p>
-      <div class="divide-y divide-gray-700">
+      <div class="divide-y divide-neutral-700">
         <div
           v-for="(credentials, service) in sortedServices"
           :key="service"
-          class="py-3 px-4 hover:bg-gray-700"
+          class="py-3 px-4 hover:bg-neutral-700 flex items-center"
           @click="navigateToChallenge(credentials)"
         >
-          {{ service }}
+          <i class="pi pi-globe mr-3"></i>
+          <span class="flex-grow overflow-hidden mr-2">{{ service }}</span>
+          <i class="pi pi-chevron-right"></i>
         </div>
       </div>
     </div>

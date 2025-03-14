@@ -1,18 +1,17 @@
 <template>
   <h1 class="m-2 font-bold text-3xl">View Password</h1>
-  <Container>
-    <form v-if="!credentials.length" @submit.prevent="handleSubmit" class=" mx-auto w-full max-w-sm sm:p-8 sm:mt-8 space-y-4 sm:border border-gray-700 rounded shadow-md">
+  <div class="mx-auto mt-16 w-full max-w-sm">
+    <form v-if="!credentials.length" @submit.prevent="handleSubmit" class="border border-neutral-600 bg-neutral-800 rounded-2xl p-6 space-y-4">
       <h1>Challenge for {{ service }}</h1>
       <div>
         <label for="master_password">Master Password</label>
-        <input type="password" id="master_password" v-model="masterPassword" class="w-full px-3 py-2 mt-1 border border-gray-700 rounded" required>
+        <input type="password" id="master_password" v-model="masterPassword" class="w-full px-3 py-2 mt-1 border border-neutral-600 rounded" required>
       </div>
       <div>
-        <button type="submit" class="w-full px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700">View</button>
+        <button type="submit" class="w-full px-4 py-2 font-semibold text-white bg-green-500/60 rounded hover:bg-green-700 focus:bg-green-700">View</button>
       </div>
-      <LinearSpinner :loading="loading" />
     </form>
-    <div v-if="credentials.length">
+    <div v-if="credentials.length" class="border border-neutral-600 bg-neutral-800 rounded-2xl p-6 space-y-4">
       <h1>Credentials for {{ service }}</h1>
       <ul class="credentials-list">
         <li v-for="credential in credentials" :key="credential.id" class="credential">
@@ -27,27 +26,27 @@
           </div>
           <div>
             <label for="password">Password:</label>
-            <div class="input-container">
+            <div class="input-container bg-neutral-800">
               <input :type="credential.showPassword ? 'text' : 'password'" id="password" :value="credential.credential.password" class="input" readonly>
-              <span class="input-icons">
-                <span @click="toggleShowPassword(credential)">View</span>
-                <span @click="copyToClipboard(credential.credential.password)">Copy</span>
+              <span class="flex absolute items-center right-0 h-full text-neutral-400">
+                <i class="pi pi-eye-slash hover:bg-neutral-600 rounded-full p-1.5" @click="toggleShowPassword(credential)"></i>
+                <i class="pi pi-copy hover:bg-neutral-600 rounded-full p-1.5" @click="copyToClipboard(credential.credential.password)"></i>
               </span>
             </div>
           </div>
         </li>
       </ul>
     </div>
-  </Container>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 // import LinearSpinner from '../components/LinearSpinner.vue';
-import { copyToClipboard } from '../lib/util';
+import { copyToClipboard } from '../../lib/util';
 
-import Container from '../components/Container.vue';
+import Container from '@/components/Container.vue';
 
 const route = useRoute();
 const masterPassword = ref('');
