@@ -8,15 +8,14 @@ unzip release.zip -d release
 
 # if the service is already running, stop it
 systemctl stop vault || true
-# remove the files
-# rm -f "/etc/systemd/system/vault.service"  # service
-rm -f "/opt/vault/server"                  # binary
+rm -f "/opt/vault/server"
 rm -rf "/opt/vault/static"
 
 # create the new service
-cp -r "release/front/dist/" "/opt/vault/static"
-cp "release/target/aarch64-unknown-linux-gnu/release/vault" "/opt/vault/server"
-# cp "vault.service" "/etc/systemd/system/vault.service"
+cp -r "release/static" "/opt/vault/static"
+cp "release/vault" "/opt/vault/server"
+
+# enable and start the service
 systemctl enable vault
 systemctl start vault
 

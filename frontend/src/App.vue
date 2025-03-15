@@ -1,41 +1,36 @@
-<template>
-  <Header />
-  <main id="main">
-    <router-view></router-view>
-  </main>
-</template>
-
 <script setup lang="ts">
-import Header from './components/Header.vue';
+import { RouterLink, RouterView } from 'vue-router'
+import DashboardLayout from './layouts/DashboardLayout.vue';
+import SidebarItem from '@/components/SidebarItem.vue';
+import { ref } from 'vue';
+
+const isTokenExpired = (token: string): boolean => Date.now() >= (JSON.parse(atob(token.split('.')[1]))).exp * 1000;
+const api_token = localStorage.getItem('api_token');
+const isLoggedIn = ref(api_token && !isTokenExpired(api_token));
+
 </script>
 
-<style>
-html,
-body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #121212;
-  color: #e0e0e0;
-}
+<template>
+  <div class="bg-neutral-800 text-white">
+    <DashboardLayout>
+      <template #sidebar_items>
+        <SidebarItem title="Overview" icon="home" to="/" />
+        <SidebarItem title="Passwords" icon="lock" to="/passwords" />
+        <SidebarItem title="Authenticator" icon="key" to="/authenticator" />
+        <SidebarItem title="Credit Cards" icon="credit-card" to="/credit-cards" />
+        <SidebarItem title="Identities" icon="id-card" to="/identities" />
+      </template>
+      <template #sidebar_items_bottom>
+        <SidebarItem title="Login" icon="sign-in" to="/login" v-if="!isLoggedIn" />
+        <SidebarItem title="Log out" icon="sign-out" to="/logout" v-else />
+        <SidebarItem title="Settings" icon="cog" to="/profile/settings" />
+      </template>
+  
+      <RouterView />
+    </DashboardLayout>
+  </div>
+</template>
 
-#app {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  height: 100%;
-  width: 100%;
-}
+<style scoped>
 
-#main {
-  height: 100%;
-  margin: 0 auto;
-  max-width: 600px;
-  width: 100%;
-  padding-bottom: 1rem;
-  background-color: #121212;
-  color: #e0e0e0;
-  /* Remove the border above the password list container */
-}
 </style>

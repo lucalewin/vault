@@ -66,7 +66,7 @@ jobs:
     - name: Zip Frontend and Backend
       run: |
         mkdir release
-        cp -r front/dist release/static
+        cp -r frontend/dist release/static
         cp target/aarch64-unknown-linux-gnu/release/vault release/vault
         zip -r release.zip release/*
     - name: Upload Release Asset
