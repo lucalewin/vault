@@ -10,6 +10,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # env:
+    #   DATABASE_URL: postgresql://postgres:password@localhost:5432/postgres    
 
     services:
       postgres:
@@ -23,58 +25,68 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: oven-sh/setup-bun@v2
-    
-    - name: Build and install frontend dependencies
+
+    # frontend
+    - name: Install Bun
+      uses: oven-sh/setup-bun@v2
+    - name: Install and Build Frontend
       working-directory: front  
       run: |
         bun install
         bun run build
 
-
-    # - name: Setup Node.js 22
-    #   uses: actions/setup-node@v4
+    # backend
+    # - name: Install Rust
+    #   uses: dtolnay/rust-toolchain@stable
     #   with:
-    #     node-version: '22'
-    #     cache: npm
-    #     cache-dependency-path: frontend/package-lock.json
-    
-    # - name: Install frontend dependencies
-    #   working-directory: frontend
-    #   run: npm install
-    # - name: Build frontend
-    #   working-directory: frontend
-    #   run: npm run build
-    
-    - name: Set up Rust
-      uses: dtolnay/rust-toolchain@stable
+    #     targets: aarch64-unknown-linux-gnu
+    #     components: rustc, rust-std, cargo
+    # - name: Install Rust 2
+    #   uses: dtolnay/rust-toolchain@stable
+    #   with:
+    #     components: rustc, rust-std, cargo
+    # - name: Install latest stable
+    #   uses: actions-rs/toolchain@v1
+    #   with:
+    #     toolchain: stable
+    #     profile: minimal
+    #     default: true
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
       with:
-        targets: aarch64-unknown-linux-gnu
-    - name: Migrate database
+        toolchain: stable
+        target: aarch64-unknown-linux-gnu
+        profile: minimal
+        components: cargo, rustc, rust-src
+    - name: Install sqlx-cli
+      uses: baptiste0928/cargo-install@v3
+      with:
+        crate: sqlx-cli
+    - name: Install cross
+      uses: baptiste0928/cargo-install@v3
+      with:
+        crate: cross
+    - name: Migrate Database
       env:
         DATABASE_URL: postgresql://postgres:password@localhost:5432/postgres
-      run: | # workaround for cross compilation
-        cargo install sqlx-cli --no-default-features --features native-tls,postgres
-        sqlx migrate run
-        cargo sqlx prepare
-    - name: Build
+      run: sqlx database setup
+    - name: Build backend
       uses: actions-rs/cargo@v1
       env:
-        SQLX_OFFLINE: true
+        DATABASE_URL: postgresql://postgres:password@localhost:5432/postgres
       with:
         command: build
         args: --release --target=aarch64-unknown-linux-gnu
         use-cross: true
-    - name: Add cache
-      uses: Swatinem/rust-cache@v2
-      with:
-        cache-all-crates: true
 
-    - name: Zip frontend and backend
+    # publish
+    - name: Zip Frontend and Backend
       run: |
-        zip -r release.zip front/dist target/aarch64-unknown-linux-gnu/release/vault
-
-    - name: Upload release asset
+        mkdir release
+        cp -r front/dist release/static
+        cp target/aarch64-unknown-linux-gnu/release/vault release/server
+        zip -r release -o release.zip
+    - name: Upload Release Asset
       uses: softprops/action-gh-release@v1
       with:
         files: ./release.zip
