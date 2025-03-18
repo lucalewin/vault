@@ -21,9 +21,9 @@ Note: Currently this only works on `aarch64 linux gnu` (example: a Raspberry Pi 
 ## Roadmap
 
 - [ ] Account recovery
-- [ ] Import of passwords
+- [x] Import of passwords
 - [x] Export of passwords
-- [ ] Authenticator (OTPs)
+- [x] Authenticator (OTPs)
   - [ ] Storage of recovery codes
 
 ## License
