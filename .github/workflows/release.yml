@@ -28,7 +28,7 @@ jobs:
     - name: Install Bun
       uses: oven-sh/setup-bun@v2
     - name: Install and Build Frontend
-      working-directory: front  
+      working-directory: frontend
       run: |
         bun install
         bun run build
