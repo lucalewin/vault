@@ -1,12 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from './views/HomeView.vue'
-import AuthenticatorView from './views/authenticator/AuthenticatorView.vue';
+
+// profile auth views
 import LoginView from './views/auth/LoginView.vue';
+import RegisterView from './views/auth/RegisterView.vue';
 // password views
 import PasswordView from './views/passwords/PasswordView.vue';
 import CredentialView from './views/passwords/CredentialView.vue';
 import NewView from './views/passwords/NewView.vue';
 
+import AuthenticatorView from './views/authenticator/AuthenticatorView.vue';
 import IdentitiesView from './views/IdentitiesView.vue';
 import CreditCardView from './views/CreditCardView.vue';
 import SettingsView from './views/SettingsView.vue';
@@ -31,6 +34,10 @@ const routes = [
   {
     path: '/login',
     component: LoginView,
+  },
+  {
+    path: '/register',
+    component: RegisterView,
   },
   {
     path: '/identities',
