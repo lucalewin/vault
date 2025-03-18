@@ -38,3 +38,23 @@ export async function export_passwords(master_password: string) {
 
   download("credentials.json", JSON.stringify(credentials, null, 2))
 }
+
+interface Credential {
+  service: string,
+  username: string,
+  password: string
+}
+
+export async function import_passwords(credentials: Credential[], master_password: string) {
+  const api_token = localStorage.getItem('api_token');
+  const response = await fetch(`/api/v1/credentials/import`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${api_token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ credentials, master_password }),
+  });
+
+  console.log(await response.json())
+}

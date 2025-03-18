@@ -247,7 +247,7 @@ pub async fn export(
         username: String,
         password: String,
     }
-    
+
     let entries = {
         let key = derive_key(payload.master_password.as_bytes(), &user.master_salt, 32);
         entries
@@ -266,4 +266,74 @@ pub async fn export(
     };
 
     Ok(serde_json::to_string(&entries).unwrap())
+}
+
+#[derive(Deserialize)]
+pub struct Credential {
+    pub service: String,
+    pub username: String,
+    pub password: String,
+}
+
+#[derive(Deserialize)]
+pub struct ImportRequest {
+    pub credentials: Vec<Credential>,
+    pub master_password: String,
+}
+
+pub async fn import(
+    State(app): State<App>,
+    SessionUser(user_id): SessionUser,
+    Json(payload): Json<ImportRequest>,
+) -> Result<String, Error> {
+    tracing::info!("Importing credentials for user {}", user_id);
+    // verify user by email and hash of master password
+    let user = sqlx::query!(
+        "SELECT password_hash, master_salt FROM users WHERE id = $1",
+        user_id
+    )
+    .fetch_one(&app.db)
+    .await
+    .expect("Failed to fetch user from database");
+
+    // // verify master password hash
+    let parsed_hash = PasswordHash::new(&user.password_hash).unwrap();
+    Argon2::default()
+        .verify_password(payload.master_password.as_bytes(), &parsed_hash)
+        // if the password is incorrect, return an error
+        .map_err(|_| Error::Generic("Invalid master password".to_string()))?;
+
+    let mut tx = app.db.begin().await.unwrap();
+
+    for credential in payload.credentials {
+        // encrypt the password with the master key
+        let encrypted_password = {
+            let key = derive_key(payload.master_password.as_bytes(), &user.master_salt, 32);
+            let (ciphertext, nonce) = encrypt_data(credential.password.as_bytes(), &key);
+            [nonce, ciphertext].concat()
+        };
+
+        // insert into database
+        sqlx::query!(
+            r#"
+            INSERT INTO credentials (user_id, service, username, password)
+            VALUES ($1, $2, $3, $4)
+            "#,
+            user_id,
+            credential.service,
+            credential.username,
+            encrypted_password
+        )
+        .execute(&mut *tx)
+        .await
+        .expect("Failed to insert password into database");
+    }
+
+    tx.commit().await.unwrap();
+
+    Ok(serde_json::json!({
+        "status": "success",
+        "message": "Passwords added successfully",
+    })
+    .to_string())
 }

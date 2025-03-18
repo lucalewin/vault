@@ -6,6 +6,7 @@ use axum::{
 use crate::App;
 
 pub mod auth;
+pub mod authenticator;
 pub mod credentials;
 
 pub fn router() -> Router<App> {
@@ -26,4 +27,10 @@ pub fn router() -> Router<App> {
         )
         // .route("/credentials/import", post(credentials::import))
         .route("/credentials/export", post(credentials::export))
+        .route("/credentials/import", post(credentials::import))
+        // authenticator
+        .route(
+            "/authenticator",
+            get(authenticator::get_codes).post(authenticator::insert_code),
+        )
 }
