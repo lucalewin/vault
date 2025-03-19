@@ -27,14 +27,13 @@ pub async fn get_codes(
     let entries = codes
         .into_iter()
         .map(|c| {
-            let totp = TOTP::new(
+            let totp = TOTP::new_unchecked(
                 Algorithm::SHA1,
                 6,
                 1,
                 30,
                 Secret::Encoded(c.secret_key).to_bytes().unwrap(),
-            )
-            .unwrap();
+            );
             let token = totp.generate_current().unwrap();
 
             AuthenticationEntry {

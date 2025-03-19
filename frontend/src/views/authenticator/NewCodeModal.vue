@@ -6,13 +6,13 @@
 
     <template #body>
       <input
-        type="password"
+        type="text"
         v-model="service"
         class="w-full px-2 py-1 border rounded mb-4 border border-neutral-600"
         placeholder="Service"
       />
       <input
-        type="password"
+        type="text"
         v-model="username"
         class="w-full px-2 py-1 border rounded mb-4 border border-neutral-600"
         placeholder="Username"
