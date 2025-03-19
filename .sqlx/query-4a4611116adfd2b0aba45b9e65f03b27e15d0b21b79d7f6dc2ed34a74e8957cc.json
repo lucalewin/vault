@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO authenticator_codes (user_id, username, service_name, secret_key) VALUES ($1, $2, $3, $4)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Varchar",
+        "Varchar",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4a4611116adfd2b0aba45b9e65f03b27e15d0b21b79d7f6dc2ed34a74e8957cc"
+}
