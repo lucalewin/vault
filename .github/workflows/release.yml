@@ -36,6 +36,8 @@ jobs:
       with:
         targets: ${{ matrix.target }}
         components: rustc, rust-std, cargo
+    - name: Cache Cargo
+      uses: Swatinem/rust-cache@v2
     - name: Build Backend
       uses: actions-rs/cargo@v1
       env:
@@ -44,10 +46,6 @@ jobs:
         command: build
         args: --release --target=${{ matrix.target }}
         use-cross: true
-
-    # cache backend build
-    - name: Cache Cargo
-      uses: Swatinem/rust-cache@v2
 
     # Publish
     - name: Prepare Release
