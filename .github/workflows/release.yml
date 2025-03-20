@@ -50,7 +50,7 @@ jobs:
     # Publish
     - name: Prepare Release
       run: |
-        mkdir -p release/static
+        mkdir -p release
         cp -r frontend/dist release/static
         cp target/${{ matrix.target }}/release/vault release/
         cd release
