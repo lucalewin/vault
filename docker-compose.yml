@@ -1,8 +1,0 @@
-version: '3.1'
-services:
-  vault:
-    image: vault:staging
-    environment:
-      - DATABASE_URL=postgresql://postgres:abcd@192.168.188.32:5432/vault
-    ports:
-      - 8000:8000
