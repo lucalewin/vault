@@ -12,14 +12,15 @@ const closeSidebar = () => {
 </script>
 
 <template>
-  <nav class="fixed top-0 w-full text-white bg-neutral-800 border-b border-neutral-600 sm:ml-64">
+  <nav class="block sm:hidden fixed top-0 w-full text-white bg-neutral-950 sm:ml-64">
     <div class="p-3 sm:p-4 flex items-center">
       <span class="w-8 h-8 text-xl text-neutral-400 hover:bg-neutral-600 rounded p-1 sm:hidden" @click="toggleSidebar">
         <i class="pi pi-bars w-4 h-4 pt-0.5 pl-0.5"></i>
       </span>
-      <slot name="title">
+      <RouterLink class="ml-3 text-2xl sm:text-3xl text-center font-black text-amber-600" to="/">Ferrum Vault</RouterLink>
+      <!-- <slot name="title">
         <h1 class="text-xl sm:text-3xl font-semibold px-2">Home</h1>
-      </slot>
+      </slot> -->
     </div>
   </nav>
 
@@ -27,14 +28,14 @@ const closeSidebar = () => {
     :class="{'translate-x-0': isSidebarOpen, '-translate-x-full': !isSidebarOpen}"  
     class="fixed top-0 left-0 w-64 border-r border-neutral-600 h-dvh transition-transform sm:translate-x-0 z-50"
   >
-    <div class="h-dvh p-4 flex flex-col justify-between bg-neutral-800">
+    <div class="h-dvh p-4 flex flex-col justify-between bg-neutral-900">
       <span>
         <!-- Header + Sidebar-Cross -->
         <div class="flex items-center mt-2 sm:text-center sm:block">
-          <span class="mx-2.5 w-8 h-8 text-xl text-neutral-400 hover:bg-neutral-600 rounded p-1 sm:hidden">
-            <i class="pi pi-times w-4 h-4 pt-0.5 pl-0.5" @click="toggleSidebar"></i>
+          <span class="mx-2.5 w-8 h-8 text-xl text-neutral-400 hover:bg-neutral-600 rounded p-1 sm:hidden" @click="toggleSidebar">
+            <i class="pi pi-times w-4 h-4 pt-0.5 pl-0.5"></i>
           </span>
-          <RouterLink class="text-lg sm:text-3xl text-center font-bold text-white" to="/">Ferrum Vault</RouterLink>
+          <RouterLink class="text-lg sm:text-3xl text-center font-black text-amber-600" to="/">Ferrum Vault</RouterLink>
         </div>
         <!-- Top Sidebar Items -->
         <div class="space-y-1 mt-8 overflow-y-auto" @click="closeSidebar">
@@ -51,7 +52,7 @@ const closeSidebar = () => {
   <div class="h-dvh w-full fixed bg-black/30 transition" :class="{'hidden': !isSidebarOpen}" @click="toggleSidebar"></div>
 
   <main>
-    <div class="sm:ml-64 pt-17 min-h-screen bg-neutral-900">
+    <div class="pt-17 sm:pt-0 sm:ml-64 min-h-screen bg-neutral-950">
       <div class="p-3">
         <slot></slot>
       </div>
