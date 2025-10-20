@@ -2,12 +2,12 @@
   import ModeSwitcher from "$lib/components/mode-switcher.svelte";
   import * as Sidebar from "$lib/components/ui/sidebar/index.js";
   import { ModeWatcher } from "mode-watcher";
-  import VaultSidebar from "./sidebar.svelte";
+
+  import VaultSidebar from "$lib/components/app-sidebar.svelte";
 
   let { children } = $props();
 </script>
 
-<ModeWatcher />
 <Sidebar.Provider>
   <VaultSidebar />
   <main class="w-full">

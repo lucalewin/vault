@@ -1,16 +1,9 @@
 <script>
   import FeaturesSummary from "$lib/components/features-summary.svelte";
   import Footer from "$lib/components/footer.svelte";
-  import Hero from "$lib/components/hero.svelte";
   import Navbar from "$lib/components/navbar.svelte";
-  import { setMode } from "mode-watcher";
-
-  setMode("dark");
 </script>
 
 <Navbar />
-<main class="">
-  <Hero />
-  <FeaturesSummary />
-</main>
+<FeaturesSummary />
 <Footer />
