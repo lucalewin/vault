@@ -28,12 +28,14 @@
     "svelte": "^5.41.0",
     "svelte-adapter-bun": "^1.0.0",
     "svelte-check": "^4.3.3",
+    "svelte-sonner": "^1.0.5",
     "svelte-toolbelt": "^0.10.6",
     "tailwind-merge": "^3.3.1",
     "tailwind-variants": "^3.1.1",
     "tailwindcss": "^4.1.14",
     "tw-animate-css": "^1.4.0",
     "typescript": "^5.9.3",
+    "vaul-svelte": "^1.0.0-next.7",
     "vite": "^7.1.10"
   },
   "dependencies": {

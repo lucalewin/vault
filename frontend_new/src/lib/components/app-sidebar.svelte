@@ -41,7 +41,7 @@
   };
 </script>
 
-<Sidebar.Root collapsible="icon">
+<Sidebar.Root collapsible="icon" variant="sidebar">
   <Sidebar.Header>
     <VaultSwitcher versions={["Personal", "Work"]} defaultVersion="Personal" />
   </Sidebar.Header>

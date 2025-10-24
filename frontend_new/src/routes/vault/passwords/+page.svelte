@@ -15,6 +15,7 @@
   import { onMount } from "svelte";
   import { token } from "$lib/stores/authStore";
   import { fetchCredentials } from "$lib";
+  import { Label } from "$lib/components/ui/label";
 
   let empty = $derived(credentials.current.length === 0);
 

@@ -5,6 +5,8 @@
     FlexRender,
   } from "$lib/components/ui/data-table/index.js";
   import * as Table from "$lib/components/ui/table/index.js";
+  import AskMaster from "./ask-master.svelte";
+  import { type PwCredential } from "./columns";
 
   type DataTableProps<TData, TValue> = {
     columns: ColumnDef<TData, TValue>[];
@@ -20,6 +22,9 @@
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
+
+  let masterOpen = $state(false);
+  let selectedId = $state("");
 </script>
 
 <div class="rounded-md border">
@@ -42,7 +47,13 @@
     </Table.Header>
     <Table.Body>
       {#each table.getRowModel().rows as row (row.id)}
-        <Table.Row data-state={row.getIsSelected() && "selected"}>
+        <Table.Row
+          data-state={row.getIsSelected() && "selected"}
+          onclick={() => (
+            (masterOpen = true),
+            (selectedId = (row.original as PwCredential).id)
+          )}
+        >
           {#each row.getVisibleCells() as cell (cell.id)}
             <Table.Cell>
               <FlexRender
@@ -62,3 +73,6 @@
     </Table.Body>
   </Table.Root>
 </div>
+
+<AskMaster bind:open={masterOpen} bind:id={selectedId} />
+<!-- <ViewMobile bind:open={mobileOpen} /> -->

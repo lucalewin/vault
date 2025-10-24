@@ -5,7 +5,7 @@
   import IdCardIcon from "@lucide/svelte/icons/id-card";
 </script>
 
-<Empty.Root>
+<Empty.Root class="flex justify-center items-center">
   <Empty.Header>
     <Empty.Media variant="icon">
       <IdCardIcon />

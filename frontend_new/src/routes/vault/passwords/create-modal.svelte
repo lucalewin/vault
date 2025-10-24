@@ -73,6 +73,7 @@
         <Label for="password" class="text-right">Password</Label>
         <Password.Root>
           <Password.Input bind:value={password}>
+            <Password.Generate bind:text={password} />
             <Password.ToggleVisibility />
           </Password.Input>
         </Password.Root>
